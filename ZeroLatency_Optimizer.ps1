@@ -106,7 +106,7 @@ Add-Type -AssemblyName System.Windows.Forms
                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Border>
         <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-          <TextBlock Text="ZERO LATENCY OPTIMIZER" Foreground="White" FontSize="14" FontWeight="SemiBold" LetterSpacing="1"/>
+          <TextBlock Text="ZERO LATENCY OPTIMIZER" Foreground="White" FontSize="14" FontWeight="SemiBold"/>
           <TextBlock Text="No Power Plan Extreme Edition · v3.0" Foreground="#8B949E" FontSize="11" FontFamily="Consolas"/>
         </StackPanel>
         <Border Grid.Column="2" Background="#0D2818" BorderBrush="#238636" BorderThickness="1" CornerRadius="10" Padding="10,3">
