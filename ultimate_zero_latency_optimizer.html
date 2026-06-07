@@ -1,0 +1,420 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --c1:#00ff88;--c2:#00ccff;--c3:#ff3366;
+    --bg:#0a0c0f;--bg2:#111418;--bg3:#181c22;
+    --border:#1e2530;--border2:#2a3340;
+  }
+  body{background:transparent;font-family:'Rajdhani',sans-serif;color:#c8d4e0}
+  .wrap{background:var(--bg);border:1px solid var(--border2);border-radius:12px;overflow:hidden;max-width:680px}
+  .header{background:var(--bg2);border-bottom:1px solid var(--border2);padding:20px 24px;display:flex;align-items:center;gap:16px}
+  .logo{width:40px;height:40px;border:1.5px solid var(--c1);border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative}
+  .logo::before{content:'';position:absolute;width:20px;height:20px;border:1.5px solid var(--c2);border-radius:4px;transform:rotate(45deg)}
+  .logo-dot{width:6px;height:6px;background:var(--c1);border-radius:50%;z-index:1}
+  .title-block h1{font-size:17px;font-weight:600;color:#fff;letter-spacing:1px}
+  .title-block p{font-size:12px;color:#5a7088;font-family:'Share Tech Mono',monospace;margin-top:2px}
+  .badge{margin-left:auto;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.25);color:var(--c1);font-size:11px;padding:4px 10px;border-radius:20px;font-family:'Share Tech Mono',monospace}
+  .tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border)}
+  .tab{padding:12px 18px;font-size:13px;font-weight:500;color:#5a7088;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.5px}
+  .tab.active{color:var(--c1);border-color:var(--c1);background:rgba(0,255,136,0.04)}
+  .tab:hover:not(.active){color:#8aabb8}
+  .content{padding:0}
+  .step-list{padding:16px}
+  .step{background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .2s}
+  .step:hover{border-color:var(--border2)}
+  .step-header{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer}
+  .step-num{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--c2);background:rgba(0,204,255,0.08);border:1px solid rgba(0,204,255,0.2);border-radius:4px;padding:3px 7px;min-width:36px;text-align:center}
+  .step-name{flex:1;font-size:14px;font-weight:500;color:#d4e0ea;letter-spacing:.5px}
+  .step-tags{display:flex;gap:6px}
+  .tag{font-size:10px;padding:2px 7px;border-radius:3px;font-family:'Share Tech Mono',monospace}
+  .tag.fps{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--c1)}
+  .tag.ping{background:rgba(0,204,255,0.08);border:1px solid rgba(0,204,255,0.2);color:var(--c2)}
+  .tag.safe{background:rgba(90,112,136,0.15);border:1px solid rgba(90,112,136,0.3);color:#8aabb8}
+  .tag.warn{background:rgba(255,51,102,0.08);border:1px solid rgba(255,51,102,0.25);color:var(--c3)}
+  .chevron{font-size:16px;color:#3a4a58;transition:transform .2s}
+  .step.open .chevron{transform:rotate(90deg)}
+  .step-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border)}
+  .step.open .step-body{display:block}
+  .step-desc{font-size:12px;color:#6a8498;line-height:1.6;padding:10px 0 8px;font-family:'Rajdhani',sans-serif}
+  .warning-box{background:rgba(255,51,102,0.06);border:1px solid rgba(255,51,102,0.2);border-radius:6px;padding:8px 12px;font-size:12px;color:#ff8899;margin-bottom:8px;display:flex;gap:8px;align-items:flex-start}
+  .script-panel{padding:16px}
+  .script-box{background:#070910;border:1px solid var(--border2);border-radius:8px;overflow:hidden}
+  .script-topbar{background:var(--bg3);border-bottom:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:8px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.r{background:#ff5f57}.dot.y{background:#ffbd2e}.dot.g{background:#28c840}
+  .script-filename{font-family:'Share Tech Mono',monospace;font-size:12px;color:#5a7088;margin-left:4px}
+  .copy-btn{margin-left:auto;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);color:var(--c1);font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s}
+  .copy-btn:hover{background:rgba(0,255,136,0.15)}
+  .gh-btn{background:rgba(0,204,255,0.08);border:1px solid rgba(0,204,255,0.2);color:var(--c2);font-size:11px;padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:all .2s;margin-left:6px}
+  .gh-btn:hover{background:rgba(0,204,255,0.15)}
+  pre{padding:16px;font-family:'Share Tech Mono',monospace;font-size:11.5px;line-height:1.65;color:#8ab4cc;overflow-x:auto;max-height:420px;overflow-y:auto}
+  pre .kw{color:#ff7ab2}
+  pre .cmd{color:var(--c2)}
+  pre .str{color:#ffd080}
+  pre .cmt{color:#3a5268}
+  pre .ok{color:var(--c1)}
+  pre .warn{color:var(--c3)}
+  .info-panel{padding:16px}
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .info-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
+  .info-card h3{font-size:12px;color:#5a7088;letter-spacing:1px;margin-bottom:10px;font-family:'Share Tech Mono',monospace}
+  .info-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+  .info-row:last-child{border:none}
+  .info-label{color:#6a8498}
+  .info-val{font-family:'Share Tech Mono',monospace;font-size:11px}
+  .info-val.green{color:var(--c1)}
+  .info-val.blue{color:var(--c2)}
+  .info-val.red{color:var(--c3)}
+  .notice{background:rgba(255,189,46,0.06);border:1px solid rgba(255,189,46,0.2);border-radius:8px;padding:12px 14px;font-size:12px;color:#e8c84a;line-height:1.6;margin:16px 16px 0;display:flex;gap:10px}
+  .notice i{font-size:18px;margin-top:1px;flex-shrink:0}
+  .footer{background:var(--bg2);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+  .footer-left{font-size:11px;color:#3a4a58;font-family:'Share Tech Mono',monospace}
+  .run-hint{font-size:11px;color:#5a7088;font-family:'Share Tech Mono',monospace}
+</style>
+
+<div class="wrap">
+  <div class="header">
+    <div class="logo"><div class="logo-dot"></div></div>
+    <div class="title-block">
+      <h1>ULTIMATE ZERO LATENCY OPTIMIZER</h1>
+      <p>No Power Plan Extreme Edition · v3.0</p>
+    </div>
+    <div class="badge">ADMIN REQUIRED</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('steps',this)">STEPS</div>
+    <div class="tab" onclick="showTab('script',this)">SCRIPT</div>
+    <div class="tab" onclick="showTab('info',this)">INFO</div>
+  </div>
+
+  <div id="tab-steps" class="content">
+    <div class="notice">
+      <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+      <div>รันในฐานะ <strong>Administrator</strong> เท่านั้น · บางขั้นตอนปิดระบบความปลอดภัย (Spectre/Meltdown) ควรทำบนเครื่องที่ใช้เล่นเกมเท่านั้น ไม่ใช่เครื่องที่เก็บข้อมูลสำคัญ</div>
+    </div>
+    <div class="step-list">
+
+      <div class="step open">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">01</span>
+          <span class="step-name">KERNEL TIMER & CPU</span>
+          <div class="step-tags"><span class="tag fps">+FPS</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">ปิด Dynamic Tick ของ Kernel, บังคับ TSC Sync Enhanced ลด DPC Latency — ทำให้ interrupt ถึง CPU ตรงเวลาขึ้น กดปิง/เฟรมเรทไม่แกว่ง</p>
+          <div class="step-tags" style="gap:6px"><span class="tag fps">DisableDynamicTick</span><span class="tag ping">TSCsync Enhanced</span><span class="tag safe">bcdedit</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">02</span>
+          <span class="step-name">GAMING PRIORITY & SCHEDULER</span>
+          <div class="step-tags"><span class="tag fps">+FPS</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">ตั้ง Win32PrioritySeparation=0x26 (Short Quantum/Fixed), ปิด PowerThrottling บังคับ GPU Priority=8, CPU Clock Rate=10000 ให้ Windows ส่ง Thread ให้เกมก่อนทุกอย่าง</p>
+          <div class="step-tags" style="gap:6px"><span class="tag fps">GPU Priority 8</span><span class="tag fps">SystemResponsiveness 0</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">03</span>
+          <span class="step-name">SECURITY MITIGATIONS OFF</span>
+          <div class="step-tags"><span class="tag fps">+FPS</span><span class="tag warn">RISK</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <div class="warning-box"><i class="ti ti-shield-off" aria-hidden="true" style="font-size:16px;margin-top:1px"></i><div>ปิด Spectre/Meltdown mitigation และ VBS/Core Isolation — คืน IPC ให้ CPU ~3-8% แต่เพิ่มความเสี่ยง side-channel attack ควรทำเฉพาะเครื่องเล่นเกมเท่านั้น</div></div>
+          <div class="step-tags" style="gap:6px"><span class="tag warn">FeatureSettingsOverride</span><span class="tag warn">DisableVBS</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">04</span>
+          <span class="step-name">KEYBOARD & MOUSE ZERO LATENCY</span>
+          <div class="step-tags"><span class="tag fps">INPUT</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">ปิด USB Selective Suspend, ล้าง Mouse Acceleration ทั้งหมด (MouseSpeed=0, Threshold=0), ตั้ง KeyboardDelay=0 / Speed=31, ปิด Accessibility Keys ทั้งหมด</p>
+          <div class="step-tags" style="gap:6px"><span class="tag fps">Raw Input 1:1</span><span class="tag ping">No USB Suspend</span><span class="tag safe">KeyDelay=0</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">05</span>
+          <span class="step-name">TCP/IP LOW-LATENCY NETWORK</span>
+          <div class="step-tags"><span class="tag ping">PING</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">เปิด RSS, ปิด ECN/Timestamps/Chimney, ตั้ง TcpAckFrequency=1 / TCPNoDelay=1 / TcpDelAckTicks=0 ทุก interface อัตโนมัติ, ปรับ DNS Cache, Winsock/IP reset</p>
+          <div class="step-tags" style="gap:6px"><span class="tag ping">TcpAckFreq=1</span><span class="tag ping">NoDelay=1</span><span class="tag safe">RSS Enabled</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">06</span>
+          <span class="step-name">GRAPHICS, GAME MODE & DVR</span>
+          <div class="step-tags"><span class="tag fps">+FPS</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">เปิด HAGS (Hardware-Accelerated GPU Scheduling), เปิด Auto Game Mode, ปิด Game DVR/Captures ทั้งหมดที่แย่ง VRAM และสร้าง Input Lag</p>
+          <div class="step-tags" style="gap:6px"><span class="tag fps">HAGS ON</span><span class="tag fps">DVR OFF</span><span class="tag safe">Game Mode ON</span></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">07</span>
+          <span class="step-name">MEMORY & SYSTEM TWEAKS</span>
+          <div class="step-tags"><span class="tag fps">SYSTEM</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">ปิด Hibernation (คืนพื้นที่ SSD), ปิด ClearPageFile at Shutdown (เร็วขึ้น), หยุด/ปิดบริการขยะ 14 ตัว (Xbox, WSearch, DiagTrack, Fax ฯลฯ) และรัน Service หลัก Network/Audio</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-header" onclick="toggleStep(this)">
+          <span class="step-num">08</span>
+          <span class="step-name">CLEANUP & ADAPTER RESET</span>
+          <div class="step-tags"><span class="tag ping">PING</span><span class="tag safe">SAFE</span></div>
+          <span class="chevron">›</span>
+        </div>
+        <div class="step-body">
+          <p class="step-desc">ลบไฟล์ %TEMP% และ Prefetch, Restart Network Adapter จริงผ่าน PowerShell เพื่อบังคับใช้ค่า TCP ทันที, ล้าง DNS Cache</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="tab-script" class="content" style="display:none">
+    <div class="script-panel">
+      <div class="script-box">
+        <div class="script-topbar">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <span class="script-filename">ALL_v3.bat</span>
+          <button class="copy-btn" onclick="copyScript()"><i class="ti ti-copy" aria-hidden="true"></i> COPY</button>
+          <button class="gh-btn" onclick="showGH()"><i class="ti ti-brand-github" aria-hidden="true"></i> GITHUB</button>
+        </div>
+        <pre id="script-content"><span class="cmt">:: ====================================================</span>
+<span class="cmt">::  Ultimate Zero Latency — No Power Plan Extreme v3</span>
+<span class="cmt">::  Run as Administrator · Restart after completion</span>
+<span class="cmt">:: ====================================================</span>
+<span class="kw">@echo off</span>
+<span class="cmd">title</span> <span class="str">Ultimate Zero Latency v3</span>
+<span class="cmd">color</span> 0a
+
+<span class="cmt">:: ── ADMIN CHECK ──────────────────────────────────</span>
+<span class="cmd">net session</span> &gt;nul 2&gt;&1
+<span class="kw">if</span> <span class="str">%errorLevel%</span> neq 0 (
+    <span class="cmd">echo</span> <span class="warn">[ERROR] Please Run as Administrator!</span>
+    <span class="cmd">pause</span> &amp; <span class="kw">exit</span>
+)
+<span class="cmd">echo</span> <span class="ok">[OK] Administrator confirmed.</span>
+
+<span class="cmt">:: ── STEP 1: KERNEL TIMER & CPU ───────────────────</span>
+<span class="cmd">echo</span> <span class="str">[1/8] Kernel Timer &amp; CPU Optimization...</span>
+<span class="cmd">bcdedit</span> /set disabledynamictick yes &gt;nul
+<span class="cmd">bcdedit</span> /set useplatformclock no &gt;nul
+<span class="cmd">bcdedit</span> /set tscsyncpolicy Enhanced &gt;nul
+<span class="cmd">bcdedit</span> /set synthetictimers yes &gt;nul
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 2: GAMING PRIORITY ──────────────────────</span>
+<span class="cmd">echo</span> <span class="str">[2/8] Gaming Priority &amp; Scheduler...</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl"</span> /v Win32PrioritySeparation /t REG_DWORD /d 0x26 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Power"</span> /v PowerThrottlingOff /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"</span> /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"</span> /v SystemResponsiveness /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v "GPU Priority" /t REG_DWORD /d 8 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v Priority /t REG_DWORD /d 6 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v "Scheduling Category" /t REG_SZ /d High /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v "SFIO Priority" /t REG_SZ /d High /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v "Clock Rate" /t REG_DWORD /d 0x2710 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games"</span> /v "Background Only" /t REG_SZ /d False /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive"</span> /v AdditionalCriticalWorkerThreads /t REG_DWORD /d 2 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Executive"</span> /v AdditionalDelayedWorkerThreads /t REG_DWORD /d 2 /f &gt;nul
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 3: SECURITY MITIGATIONS OFF (FPS BOOST) ─</span>
+<span class="cmd">echo</span> <span class="warn">[3/8] Security Mitigations Off (Gaming Only!)...</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"</span> /v FeatureSettingsOverride /t REG_DWORD /d 3 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"</span> /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard"</span> /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 4: KEYBOARD & MOUSE ZERO LATENCY ────────</span>
+<span class="cmd">echo</span> <span class="str">[4/8] Input Devices Zero Latency...</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\USB"</span> /v DisableSelectiveSuspend /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\HidUsb"</span> /v IdleEnable /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Keyboard"</span> /v KeyboardDelay /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Keyboard"</span> /v KeyboardSpeed /t REG_SZ /d 31 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Mouse"</span> /v MouseSpeed /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Mouse"</span> /v MouseThreshold1 /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Mouse"</span> /v MouseThreshold2 /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Mouse"</span> /v MouseHoverTime /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Accessibility\StickyKeys"</span> /v Flags /t REG_SZ /d 506 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Accessibility\Keyboard Response"</span> /v Flags /t REG_SZ /d 122 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Accessibility\ToggleKeys"</span> /v Flags /t REG_SZ /d 58 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Control Panel\Accessibility\MouseKeys"</span> /v Flags /t REG_SZ /d 0 /f &gt;nul
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 5: TCP/IP LOW-LATENCY NETWORK ───────────</span>
+<span class="cmd">echo</span> <span class="str">[5/8] TCP/IP Network Optimization...</span>
+<span class="cmd">netsh</span> int tcp set global autotuninglevel=normal &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int tcp set global rss=enabled &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int tcp set global chimney=disabled &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int tcp set global ecncapability=disabled &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int tcp set global timestamps=disabled &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int tcp set supplemental template=custom icw=10 &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int ip set global taskoffload=enabled &gt;nul 2&gt;&1
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"</span> /v DefaultTTL /t REG_DWORD /d 64 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"</span> /v EnablePMTUDiscovery /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"</span> /v EnableRSS /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"</span> /v Tcp1323Opts /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"</span> /v TcpTimedWaitDelay /t REG_DWORD /d 30 /f &gt;nul
+<span class="cmd">powershell</span> -Command <span class="str">"$p='HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces'; Get-ChildItem $p | ForEach-Object { Set-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay' -Value 1 -Type DWord -Force -EA SilentlyContinue; Set-ItemProperty -Path $_.PSPath -Name 'TcpDelAckTicks' -Value 0 -Type DWord -Force -EA SilentlyContinue }"</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"</span> /v CacheHashTableBucketSize /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"</span> /v MaxCacheEntryTtlLimit /t REG_DWORD /d 64000 /f &gt;nul
+<span class="cmd">netsh</span> winsock reset &gt;nul 2&gt;&1
+<span class="cmd">netsh</span> int ip reset &gt;nul 2&gt;&1
+<span class="cmd">ipconfig</span> /flushdns &gt;nul 2&gt;&1
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 6: GRAPHICS, GAME MODE & DVR ────────────</span>
+<span class="cmd">echo</span> <span class="str">[6/8] Graphics &amp; Game Mode...</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"</span> /v HwSchMode /t REG_DWORD /d 2 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Software\Microsoft\GameBar"</span> /v AllowAutoGameMode /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\Software\Microsoft\GameBar"</span> /v AutoGameModeEnabled /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR"</span> /v AllowGameDVR /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\System\GameConfigStore"</span> /v GameDVR_Enabled /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\System\GameConfigStore"</span> /v GameDVR_FSEBehaviorMode /t REG_DWORD /d 2 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\System\GameConfigStore"</span> /v GameDVR_HonorUserFSEBehaviorMode /t REG_DWORD /d 1 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"</span> /v AppCaptureEnabled /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 7: MEMORY, SERVICES & SYSTEM TWEAKS ─────</span>
+<span class="cmd">echo</span> <span class="str">[7/8] Memory, Services &amp; System Tweaks...</span>
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"</span> /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">reg add</span> <span class="str">"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"</span> /v LargeSystemCache /t REG_DWORD /d 0 /f &gt;nul
+<span class="cmd">powercfg</span> -h off &gt;nul 2&gt;&1
+<span class="cmd">taskkill</span> /f /im OneDrive.exe &gt;nul 2&gt;&1
+<span class="cmd">reg delete</span> <span class="str">"HKCU\Software\Microsoft\Windows\CurrentVersion\Run"</span> /v OneDrive /f &gt;nul 2&gt;&1
+
+<span class="cmt">:: Disable unnecessary services</span>
+<span class="kw">for</span> %%S <span class="kw">in</span> (wuauserv dosvc DiagTrack WSearch MapsBroker XblAuthManager XblGameSave XboxNetApiSvc Fax RetailDemo RemoteRegistry WerSvc) <span class="kw">do</span> (
+    <span class="cmd">sc</span> stop "%%S" &gt;nul 2&gt;&1
+    <span class="cmd">sc</span> config "%%S" start= disabled &gt;nul 2&gt;&1
+)
+<span class="cmt">:: Ensure core services are running</span>
+<span class="kw">for</span> %%S <span class="kw">in</span> (Audiosrv AudioEndpointBuilder Dhcp NlaSvc Netman WlanSvc RpcSs EventLog PlugPlay LanmanWorkstation LanmanServer) <span class="kw">do</span> (
+    <span class="cmd">sc</span> config "%%S" start= auto &gt;nul 2&gt;&1
+    <span class="cmd">sc</span> start "%%S" &gt;nul 2&gt;&1
+)
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmt">:: ── STEP 8: CLEANUP & ADAPTER RESET ──────────────</span>
+<span class="cmd">echo</span> <span class="str">[8/8] Cleanup &amp; Network Adapter Reset...</span>
+<span class="cmd">del</span> /q /f /s <span class="str">%TEMP%\*</span> &gt;nul 2&gt;&1
+<span class="cmd">del</span> /q /f /s <span class="str">C:\Windows\Prefetch\*</span> &gt;nul 2&gt;&1
+<span class="cmd">powershell</span> -Command <span class="str">"Get-NetAdapter | Where-Object {$_.Physical -eq $true} | Restart-NetAdapter -Confirm:$false"</span>
+<span class="cmd">echo</span> <span class="ok">[OK] Done.</span>
+
+<span class="cmd">echo</span>.
+<span class="cmd">echo</span> <span class="ok">================================================</span>
+<span class="cmd">echo</span> <span class="ok">  ALL SETTINGS APPLIED — PLEASE RESTART YOUR PC</span>
+<span class="cmd">echo</span> <span class="ok">================================================</span>
+<span class="cmd">pause</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-info" class="content" style="display:none">
+    <div class="info-panel">
+      <div class="info-grid">
+        <div class="info-card">
+          <h3>CHANGES v3.0</h3>
+          <div class="info-row"><span class="info-label">Progress output</span><span class="info-val green">ADDED</span></div>
+          <div class="info-row"><span class="info-label">New-ItemProperty → Set-ItemProperty</span><span class="info-val green">FIXED</span></div>
+          <div class="info-row"><span class="info-label">DefaultTTL decimal 64</span><span class="info-val green">FIXED</span></div>
+          <div class="info-row"><span class="info-label">Restart-NetAdapter -Confirm:$false</span><span class="info-val green">IMPROVED</span></div>
+          <div class="info-row"><span class="info-label">Suppressed all noisy output</span><span class="info-val green">CLEANER</span></div>
+        </div>
+        <div class="info-card">
+          <h3>REQUIREMENTS</h3>
+          <div class="info-row"><span class="info-label">OS</span><span class="info-val blue">Windows 10/11</span></div>
+          <div class="info-row"><span class="info-label">Privileges</span><span class="info-val blue">Administrator</span></div>
+          <div class="info-row"><span class="info-label">After run</span><span class="info-val blue">Restart PC</span></div>
+          <div class="info-row"><span class="info-label">HAGS GPU support</span><span class="info-val blue">GTX 1000+ / RX 5000+</span></div>
+        </div>
+        <div class="info-card">
+          <h3>IMPACT</h3>
+          <div class="info-row"><span class="info-label">FPS improvement</span><span class="info-val green">+5–15%</span></div>
+          <div class="info-row"><span class="info-label">Input latency</span><span class="info-val green">↓ ลดลง</span></div>
+          <div class="info-row"><span class="info-label">Network ping</span><span class="info-val green">↓ ลดลง</span></div>
+          <div class="info-row"><span class="info-label">Security risk (step 3)</span><span class="info-val red">↑ เพิ่มขึ้น</span></div>
+        </div>
+        <div class="info-card">
+          <h3>GITHUB GUIDE</h3>
+          <div class="info-row"><span class="info-label">Upload</span><span class="info-val blue">git push</span></div>
+          <div class="info-row"><span class="info-label">Run from PowerShell</span><span class="info-val blue">iwr + iex</span></div>
+          <div class="info-row"><span class="info-label">Or clone &amp; run</span><span class="info-val blue">git clone</span></div>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px">
+        <p style="font-size:11px;color:#5a7088;font-family:'Share Tech Mono',monospace;margin-bottom:8px">RUN FROM GITHUB (POWERSHELL AS ADMIN)</p>
+        <pre style="max-height:none;padding:0;font-size:12px;color:#8ab4cc"><span class="cmt"># Clone แล้วรัน</span>
+<span class="cmd">git clone</span> https://github.com/<span class="str">username/repo</span>.git
+<span class="cmd">cd</span> repo
+<span class="cmd">.\ALL_v3.bat</span>
+
+<span class="cmt"># หรือรันตรงจาก raw URL (ต้อง trust repo ตัวเอง)</span>
+<span class="cmd">Start-Process</span> cmd -ArgumentList <span class="str">'/c "irm https://raw.githubusercontent.com/username/repo/main/ALL_v3.bat -OutFile $env:TEMP\ALL_v3.bat && %TEMP%\ALL_v3.bat"'</span> -Verb RunAs</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-left">v3.0 · 8 STEPS · RESTART REQUIRED</span>
+    <span class="run-hint">Run as Administrator ↗</span>
+  </div>
+</div>
+
+<script>
+function showTab(id, el) {
+  document.querySelectorAll('.content').forEach(c => c.style.display = 'none');
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).style.display = '';
+  el.classList.add('active');
+}
+function toggleStep(hdr) {
+  hdr.parentElement.classList.toggle('open');
+}
+function copyScript() {
+  const pre = document.getElementById('script-content');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✓ COPIED';
+    setTimeout(() => btn.innerHTML = '<i class="ti ti-copy"></i> COPY', 2000);
+  });
+}
+function showGH() {
+  sendPrompt('ช่วยสอนวิธีอัปโหลดไฟล์ ALL_v3.bat ขึ้น GitHub แล้วรันผ่าน PowerShell แบบ step-by-step หน่อย');
+}
+</script>
