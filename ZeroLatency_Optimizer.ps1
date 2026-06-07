@@ -482,7 +482,12 @@ $BtnRun.Add_Click({
             Step7-ServicesMemory
             Start-Sleep -Milliseconds 400
             Step8-Cleanup
-        } catch {}
+        } catch {
+        $errorMsg = $_.Exception.Message
+            Update-UI {
+                [System.Windows.MessageBox]::Show("เกิดข้อผิดพลาด: $errorMsg", "Error", "OK", "Error")
+            }
+        }
 
         Update-UI {
             $StatusBadge.Text = "DONE"
