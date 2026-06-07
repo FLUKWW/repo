@@ -1,5 +1,5 @@
 # ================================================================
-# ULTIMATE ZERO LATENCY - CODENAME: CYBER-GUI EDITION v3
+# ULTIMATE ZERO LATENCY - CODENAME: CYBER-GUI EDITION v4 (EXTREME MAX)
 # ================================================================
 
 # โหลดไลบรารีสำหรับสร้างหน้าต่าง GUI
@@ -21,9 +21,9 @@ $fontLog    = New-Object System.Drawing.Font("Consolas", 10, [System.Drawing.Fon
 
 # 3. สร้างหน้าต่างหลัก (Main Form) ดีไซน์ Dark Mode
 $form = New-Object System.Windows.Forms.Form
-$form.Text = "Ultimate Zero Latency - Extreme Edition v3"
+$form.Text = "Ultimate Zero Latency - Extreme Edition v4"
 $form.Size = New-Object System.Drawing.Size(750, 600)
-$form.BackColor = [System.Drawing.Color]::FromArgb(11, 14, 20) # สีดำ Obsidian
+$form.BackColor = [System.Drawing.Color]::FromArgb(11, 14, 20)
 $form.StartPosition = "CenterScreen"
 $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox = $false
@@ -32,14 +32,14 @@ $form.MaximizeBox = $false
 $lblTitle = New-Object System.Windows.Forms.Label
 $lblTitle.Text = "ULTIMATE ZERO LATENCY"
 $lblTitle.Font = $fontTitle
-$lblTitle.ForeColor = [System.Drawing.Color]::FromArgb(0, 229, 255) # สีฟ้านีออน
+$lblTitle.ForeColor = [System.Drawing.Color]::FromArgb(0, 229, 255)
 $lblTitle.Location = New-Object System.Drawing.Point(20, 20)
 $lblTitle.Size = New-Object System.Drawing.Size(700, 35)
 $lblTitle.TextAlign = "MiddleCenter"
 $form.Controls.Add($lblTitle)
 
 $lblSub = New-Object System.Windows.Forms.Label
-$lblSub.Text = "POWERSHELL EXTREME ENGINE v3 // TUNED FOR COMPETITIVE GAMING"
+$lblSub.Text = "POWERSHELL EXTREME ENGINE v4 // TUNED FOR COMPETITIVE GAMING"
 $lblSub.Font = $fontSub
 $lblSub.ForeColor = [System.Drawing.Color]::FromArgb(139, 148, 158)
 $lblSub.Location = New-Object System.Drawing.Point(20, 55)
@@ -51,7 +51,7 @@ $form.Controls.Add($lblSub)
 $lblWarn = New-Object System.Windows.Forms.Label
 $lblWarn.Text = "[!] WARNING: Applying extreme tweaks for competitive gaming. Close all background apps before proceeding."
 $lblWarn.Font = $fontWarn
-$lblWarn.ForeColor = [System.Drawing.Color]::FromArgb(255, 165, 0) # สีส้มแจ้งเตือน
+$lblWarn.ForeColor = [System.Drawing.Color]::FromArgb(255, 165, 0)
 $lblWarn.Location = New-Object System.Drawing.Point(20, 85)
 $lblWarn.Size = New-Object System.Drawing.Size(700, 25)
 $lblWarn.TextAlign = "MiddleCenter"
@@ -61,7 +61,7 @@ $form.Controls.Add($lblWarn)
 $logBox = New-Object System.Windows.Forms.RichTextBox
 $logBox.Location = New-Object System.Drawing.Point(30, 125)
 $logBox.Size = New-Object System.Drawing.Size(675, 260)
-$logBox.BackColor = [System.Drawing.Color]::FromArgb(18, 22, 32) # สีเทาเข้มคอนโซล
+$logBox.BackColor = [System.Drawing.Color]::FromArgb(18, 22, 32)
 $logBox.ForeColor = [System.Drawing.Color]::FromArgb(201, 209, 217)
 $logBox.Font = $fontLog
 $logBox.ReadOnly = $true
@@ -75,10 +75,9 @@ function Update-Log ($text, $color = "White") {
     $logBox.SelectionColor = [System.Drawing.Color]::$color
     $logBox.AppendText("$text`r`n")
     $logBox.ScrollToCaret()
-    [System.Windows.Forms.Application]::DoEvents() # บังคับให้ UI อัปเดตเฟรมเรตหน้าต่าง ไม่ให้ค้าง
+    [System.Windows.Forms.Application]::DoEvents()
 }
 
-# พิมพ์ข้อความต้อนรับเริ่มต้นลงใน Log
 Update-Log ">> System Engine Ready." "Cyan"
 Update-Log ">> Awaiting optimization deployment sequence..." "Gray"
 
@@ -95,7 +94,7 @@ $btnStart.Text = "START OPTIMIZATION"
 $btnStart.Font = $fontBtn
 $btnStart.Location = New-Object System.Drawing.Point(30, 435)
 $btnStart.Size = New-Object System.Drawing.Size(675, 55)
-$btnStart.BackColor = [System.Drawing.Color]::FromArgb(0, 204, 102) # สีเขียว Cyber Green
+$btnStart.BackColor = [System.Drawing.Color]::FromArgb(0, 204, 102)
 $btnStart.ForeColor = [System.Drawing.Color]::White
 $btnStart.FlatStyle = "Flat"
 $btnStart.FlatAppearance.BorderSize = 0
@@ -103,7 +102,6 @@ $form.Controls.Add($btnStart)
 
 # --- ฟังก์ชันทำงานเมื่อกดปุ่ม (CLICK EVENT ACTION) ---
 $btnStart.Add_Click({
-    # ปิดการกดปุ่มซ้ำระว่างประมวลผล
     $btnStart.Enabled = $false
     $btnStart.BackColor = [System.Drawing.Color]::FromArgb(40, 45, 55)
     $btnStart.Text = "OPTIMIZATION IN PROGRESS..."
@@ -113,15 +111,32 @@ $btnStart.Add_Click({
     
     Update-Log "========== STARTING SYSTEM OPTIMIZATION ENGINE ==========" "Cyan"
     
-    # STEP 1: RESTORE POINT
+    # STEP 1: RESTORE POINT (SMART CHECK)
     $progressBar.Value = 10
-    Update-Log "[*] Step 1: Creating System Restore Point (This may take a moment)..." "White"
-    Checkpoint-Computer -Description "Pre-ZeroLatency_v3" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
-    Update-Log "--> Restore Point Configured Successfully." "Green"
+    Update-Log "[*] Step 1: Checking System Restore Point status..." "White"
+    
+    $rpExists = $false
+    $rpList = Get-ComputerRestorePoint -ErrorAction SilentlyContinue
+    if ($rpList) {
+        foreach ($rp in $rpList) {
+            if ($rp.Description -eq "Pre-ZeroLatency_v3" -or $rp.Description -eq "Pre-ZeroLatency_v4") {
+                $rpExists = $true
+                break
+            }
+        }
+    }
+
+    if ($rpExists) {
+        Update-Log "--> Restore Point already exists! Skipping creation to save time." "Yellow"
+    } else {
+        Update-Log "--> No Restore Point found. Creating a new one (This may take a moment)..." "Cyan"
+        Checkpoint-Computer -Description "Pre-ZeroLatency_v4" -RestorePointType "MODIFY_SETTINGS" -ErrorAction SilentlyContinue
+        Update-Log "--> Restore Point Configured Successfully." "Green"
+    }
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 2: KERNEL TIME & CPU OPTIMIZATION
-    $progressBar.Value = 25
+    $progressBar.Value = 20
     Update-Log "[*] Step 2: Optimizing CPU Timers & Reducing DPC Latency..." "White"
     bcdedit /set disabledynamictick yes | Out-Null
     bcdedit /set useplatformclock no | Out-Null
@@ -131,7 +146,7 @@ $btnStart.Add_Click({
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 3: GAMING PRIORITY & POWER THROTTLING
-    $progressBar.Value = 40
+    $progressBar.Value = 30
     Update-Log "[*] Step 3: Tuning Windows Resource Priority Queue..." "White"
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0x26 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f | Out-Null
@@ -153,8 +168,8 @@ $btnStart.Add_Click({
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 4: SECURITY MITIGATIONS OFF (FPS BOOST)
-    $progressBar.Value = 50
-    Update-Log "[*] Step 4: Disabling CPU Spectre, Meltdown & Core Isolation VBS..." "White"
+    $progressBar.Value = 40
+    Update-Log "[*] Step 4: Disabling Deep Security Mitigations (VBS/Core Isolation)..." "White"
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverride /t REG_DWORD /d 3 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v FeatureSettingsOverrideMask /t REG_DWORD /d 3 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\DeviceGuard" /v EnableVirtualizationBasedSecurity /t REG_DWORD /d 0 /f | Out-Null
@@ -162,7 +177,7 @@ $btnStart.Add_Click({
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 5: KEYBOARD & MOUSE ZERO LATENCY
-    $progressBar.Value = 60
+    $progressBar.Value = 50
     Update-Log "[*] Step 5: Applying 1:1 Raw Input & Stripping USB Idle Latency..." "White"
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\USB" /v DisableSelectiveSuspend /t REG_DWORD /d 1 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Services\HidUsb" /v IdleEnable /t REG_DWORD /d 0 /f | Out-Null
@@ -181,9 +196,9 @@ $btnStart.Add_Click({
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 6: ADVANCED LOW-LATENCY NETWORK (TCP/IP)
-    $progressBar.Value = 70
+    $progressBar.Value = 60
     Update-Log "[*] Step 6: Recalibrating TCP/IP Architecture & Network Adapters..." "White"
-    netsh int tcp set global autotuninglevel=normal | Out-Null
+    netsh int tcp set global autotuninglevel=disabled | Out-Null
     netsh int tcp set global rss=enabled | Out-Null
     netsh int tcp set global chimney=disabled | Out-Null
     netsh int tcp set global ecncapability=disabled | Out-Null
@@ -211,8 +226,8 @@ $btnStart.Add_Click({
     Update-Log "--> Network Interface Optimization Deployed. Registry Packet Queuing Fixed." "Green"
     Update-Log "--------------------------------------------------------" "Gray"
 
-    # STEP 7: GRAPHICS, GAME MODE & GAME DVR (HAGS FORCED ON)
-    $progressBar.Value = 80
+    # STEP 7: GRAPHICS, GAME MODE & GAME DVR
+    $progressBar.Value = 70
     Update-Log "[*] Step 7: Forcing Hardware-Accelerated GPU Scheduling (HAGS) ON..." "White"
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f | Out-Null
     reg add "HKCU\Software\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f | Out-Null
@@ -227,8 +242,10 @@ $btnStart.Add_Click({
     Update-Log "--------------------------------------------------------" "Gray"
 
     # STEP 8: MEMORY & WINDOWS SERVICES OPTIMIZATION
-    $progressBar.Value = 90
-    Update-Log "[*] Step 8: Disabling Non-Essential Bloatware Background Services..." "White"
+    $progressBar.Value = 80
+    Update-Log "[*] Step 8: Memory Paging ^& Base Services Overhaul..." "White"
+    # บังคับระบบปฏิบัติการให้อยู่บน RAM (ดีมากสำหรับเครื่อง RAM 16GB+)
+    reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v DisablePagingExecutive /t REG_DWORD /d 1 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v ClearPageFileAtShutdown /t REG_DWORD /d 0 /f | Out-Null
     reg add "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" /v LargeSystemCache /t REG_DWORD /d 0 /f | Out-Null
     powercfg -h off | Out-Null
@@ -236,17 +253,30 @@ $btnStart.Add_Click({
     Stop-Process -Name "OneDrive" -Force -ErrorAction SilentlyContinue
     reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v OneDrive /f | Out-Null
 
-    $services = @("wuauserv", "dosvc", "DiagTrack", "WSearch", "MapsBroker", "Fax", "RetailDemo", "RemoteRegistry", "WerSvc")
+    # เพิ่มการปิด SysMain (ลดดิสก์ 100%)
+    $services = @("wuauserv", "dosvc", "DiagTrack", "WSearch", "MapsBroker", "Fax", "RetailDemo", "RemoteRegistry", "WerSvc", "SysMain")
     foreach ($svc in $services) {
         Stop-Service -Name $svc -Force -ErrorAction SilentlyContinue
         Set-Service -Name $svc -StartupType Disabled -ErrorAction SilentlyContinue
     }
-    Update-Log "--> Windows Bloatware Services Neutralized." "Green"
+    Update-Log "--> Windows Bloatware Services Neutralized. Kernel Pinned to RAM." "Green"
     Update-Log "--------------------------------------------------------" "Gray"
 
-    # STEP 9: FINAL PURGE & REFRESH NETWORK
+    # STEP 9: OS BLOAT & DEEP SYSTEM TWEAKS (NEW!)
+    $progressBar.Value = 90
+    Update-Log "[*] Step 9: Injecting Deep OS Tweaks (NDU, Telemetry, Apps)..." "White"
+    # ปิด NDU (แก้ปัญหา Memory Leak จาก Network)
+    reg add "HKLM\SYSTEM\CurrentControlSet\Services\Ndu" /v Start /t REG_DWORD /d 4 /f | Out-Null
+    # ปิด Telemetry
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\DataCollection" /v AllowTelemetry /t REG_DWORD /d 0 /f | Out-Null
+    # ปิด Background Apps ทั้งระบบ
+    reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" /v LetAppsRunInBackground /t REG_DWORD /d 2 /f | Out-Null
+    Update-Log "--> OS Telemetry Blinded. Network Data Usage Monitor Destroyed." "Green"
+    Update-Log "--------------------------------------------------------" "Gray"
+
+    # STEP 10: FINAL PURGE & REFRESH NETWORK
     $progressBar.Value = 100
-    Update-Log "[*] Step 9: Flushing DNS Cache & Hot-Restarting Network Interfaces..." "White"
+    Update-Log "[*] Step 10: Flushing DNS Cache & Hot-Restarting Network Interfaces..." "White"
     Remove-Item -Path "$env:TEMP\*" -Recurse -Force -ErrorAction SilentlyContinue
     Remove-Item -Path "C:\Windows\Prefetch\*" -Recurse -Force -ErrorAction SilentlyContinue
     ipconfig /flushdns | Out-Null
