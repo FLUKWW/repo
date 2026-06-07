@@ -267,7 +267,7 @@ Add-Type -AssemblyName System.Windows.Forms
         <TextBlock Text="v3.0 · 8 STEPS · RESTART REQUIRED" Foreground="#484F58"
                    FontSize="11" FontFamily="Consolas" VerticalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <Button x:Name="Btn" Content="▶   OPTIMIZER" Style="{StaticResource Btn}"/>
+          <Button x:Name="BtnRun" Content="▶   OPTIMIZER" Style="{StaticResource Btn}"/>
         </StackPanel>
       </Grid>
     </Border>
