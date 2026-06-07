@@ -75,7 +75,7 @@ Write-Host "[*] Step 4: Forcing 1:1 Raw Input..." -ForegroundColor White
 # STEP 5: NETWORK OPTIMIZATION
 # ====================================
 Write-Host "[*] Step 5: Recalibrating TCP/IP Architecture..." -ForegroundColor White
-& netsh int tcp set global autotuninglevel=normal | Out-Null
+& netsh int tcp set global autotuninglevel=disabled | Out-Null
 & netsh int tcp set global rss=enabled | Out-Null
 & netsh int tcp set global chimney=disabled | Out-Null
 & netsh int tcp set global ecncapability=disabled | Out-Null
