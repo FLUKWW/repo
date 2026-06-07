@@ -56,7 +56,7 @@ Add-Type -AssemblyName System.Windows.Forms
       <Setter Property="Padding" Value="5,1"/>
       <Setter Property="Margin" Value="0,0,4,0"/>
     </Style>
-    <Style x:Key="RunBtn" TargetType="Button">
+    <Style x:Key="Btn" TargetType="Button">
       <Setter Property="Background" Value="#1F6FEB"/>
       <Setter Property="Foreground" Value="White"/>
       <Setter Property="FontSize" Value="13"/>
@@ -253,7 +253,7 @@ Add-Type -AssemblyName System.Windows.Forms
     <!-- Progress -->
     <StackPanel Grid.Row="2" Margin="16,10,16,6">
       <Grid Margin="0,0,0,5">
-        <TextBlock x:Name="ProgressLabel" Text="กด RUN เพื่อเริ่มต้น" Foreground="#8B949E" FontSize="11" FontFamily="Consolas"/>
+        <TextBlock x:Name="ProgressLabel" Text="กด  เพื่อเริ่มต้น" Foreground="#8B949E" FontSize="11" FontFamily="Consolas"/>
         <TextBlock x:Name="ProgressPct" Text="" Foreground="#58A6FF" FontSize="11" FontFamily="Consolas" HorizontalAlignment="Right"/>
       </Grid>
       <Border Background="#21262D" CornerRadius="3" Height="6">
@@ -267,7 +267,7 @@ Add-Type -AssemblyName System.Windows.Forms
         <TextBlock Text="v3.0 · 8 STEPS · RESTART REQUIRED" Foreground="#484F58"
                    FontSize="11" FontFamily="Consolas" VerticalAlignment="Center"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-          <Button x:Name="BtnRun" Content="▶  RUN OPTIMIZER" Style="{StaticResource RunBtn}"/>
+          <Button x:Name="Btn" Content="▶   OPTIMIZER" Style="{StaticResource Btn}"/>
         </StackPanel>
       </Grid>
     </Border>
@@ -465,7 +465,7 @@ $BtnRun.Add_Click({
     $StatusBadge.Parent.BorderBrush = "#9E6A03"
     $StatusBadge.Parent.Background  = "#2D1B00"
 
-    $job = [System.Threading.Thread]::new({
+    $job = [System.Threading.Thread]::new([System.Threading.ThreadStart]{
         try {
             Step1-KernelCPU
             Start-Sleep -Milliseconds 300
