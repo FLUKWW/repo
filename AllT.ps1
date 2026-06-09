@@ -121,6 +121,7 @@ $ChkBxStyle = {
     $cb.Location = New-Object System.Drawing.Point(40, $y)
     $cb.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular)
     $cb.ForeColor = [System.Drawing.Color]::White
+    $cb.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
     $cb.Checked = $true
 }
 
@@ -150,11 +151,13 @@ $ApplyBtn.Location = New-Object System.Drawing.Point(45, 480)
 Set-ControlStyle $ApplyBtn ([System.Drawing.Color]::Black) ([System.Drawing.Color]::Cyan)
 $MainPanel.Controls.Add($ApplyBtn)
 
+# ==========================================
+# [BUG FIX #2] Write-Log — ลบ Control.Invoke + [Action[string]] ออก
+# เรียกใช้งานจาก UI thread อยู่แล้ว และ delegate แบบเดิม
+# อาจหา $LogBox ไม่เจอเพราะไม่ได้ทำ closure capture ไว้
+# ==========================================
 function Write-Log ($Message) {
-    $Form.Invoke([Action[string]]{ 
-        param($msg) 
-        $LogBox.AppendText("[$((Get-Date).ToString('HH:mm:ss'))] $msg`r`n") 
-    }, $Message)
+    $LogBox.AppendText("[$((Get-Date).ToString('HH:mm:ss'))] $Message`r`n")
 }
 
 # ==========================================
@@ -184,7 +187,7 @@ $ActivateBtn.Add_Click({
         if (Test-Path $RegPath) {
             $CheckKey = (Get-ItemProperty -Path $RegPath -Name "LicenseKey" -ErrorAction SilentlyContinue).LicenseKey
             $CheckHWID = (Get-ItemProperty -Path $RegPath -Name "HWID" -ErrorAction SilentlyContinue).HWID
-            
+
             if ($CheckKey -eq $EnteredKey -and $CheckHWID -ne $CurrentHWID) {
                 $StatusLabel.Text = "คีย์นี้ถูกล็อกใช้งานกับเครื่องอื่นไปแล้ว!"
                 $StatusLabel.ForeColor = [System.Drawing.Color]::Red
@@ -194,17 +197,16 @@ $ActivateBtn.Add_Click({
         if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
         Set-ItemProperty -Path $RegPath -Name "LicenseKey" -Value $EnteredKey -Force
         Set-ItemProperty -Path $RegPath -Name "HWID" -Value $CurrentHWID -Force
-        
+
         $StatusLabel.Text = "เปิดใช้งานสำเร็จ กำลังเข้าสู่ระบบ..."
         $StatusLabel.ForeColor = [System.Drawing.Color]::LimeGreen
-        
+
         $Timer = New-Object System.Windows.Forms.Timer
         $Timer.Interval = 1200
-        # แก้ไขจุดที่ทำให้เกิด Loop ตรงนี้ครับ
-        $Timer.Add_Tick({ 
+        $Timer.Add_Tick({
             param($sender, $e)
             $sender.Stop()
-            Show-MainDashboard 
+            Show-MainDashboard
         })
         $Timer.Start()
     } else {
@@ -306,21 +308,28 @@ $ApplyBtn.Add_Click({
 
     $JobTimer = New-Object System.Windows.Forms.Timer
     $JobTimer.Interval = 300
-    # แก้ไขจุดที่ทำให้เกิด Loop ป้องกันไว้ให้ด้วยครับ
-    $JobTimer.Add_Tick({
+
+    # ==========================================
+    # [BUG FIX #1] เพิ่ม .GetNewClosure() เพื่อ capture ตัวแปร
+    # $AsyncResult และ $PowerShellJob ที่อยู่ใน scope ของ Click handler
+    # พอ handler คืนค่าไปแล้ว timer tick จะหาตัวแปรไม่เจอถ้าไม่ทำ closure
+    # ==========================================
+    $tickBlock = {
         param($sender, $e)
         if ($AsyncResult.IsCompleted) {
             $sender.Stop()
             $Outputs = $PowerShellJob.EndInvoke($AsyncResult)
             foreach ($line in $Outputs) { Write-Log $line }
             $PowerShellJob.Dispose()
-            
+
             $ApplyBtn.Enabled = $true
             $ApplyBtn.Text = "ENGAGE OPTIMIZATION"
             $ApplyBtn.BackColor = [System.Drawing.Color]::Cyan
             [System.Windows.Forms.MessageBox]::Show("ระบบปรับแต่งค่าเรียบร้อยแล้ว!`nกรุณาทำการ Restart PC เพื่อให้ผลลัพธ์ทำงาน 100%", "Success", "OK", "Information")
         }
-    })
+    }.GetNewClosure()
+
+    $JobTimer.Add_Tick($tickBlock)
     $JobTimer.Start()
 })
 
