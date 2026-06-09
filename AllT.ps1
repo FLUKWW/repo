@@ -1,337 +1,572 @@
-<#
-================================================================
-ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.3 (BUG FIX)
-================================================================
-#>
-
-# 1. ตรวจสอบสิทธิ์ Administrator
-if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Add-Type -AssemblyName PresentationFramework
-    [System.Windows.MessageBox]::Show("กรุณารันสคริปต์นี้ในสิทธิ์ Administrator เท่านั้น! (Run as Administrator)", "Error", "OK", "Error")
-    Exit
-}
-
-# 2. รายการคีย์ทั้งหมด 20 คีย์
-$ValidKeys = @(
-    "UZL-4V9X-2K7B-M1N0", "UZL-8W2Z-5Q4P-R7T9", "UZL-1M6K-9J3D-L5F2", "UZL-7V4C-2X8B-N1M0",
-    "UZL-3K9P-6Q2W-R5T7", "UZL-5F1D-8J3K-M6L2", "UZL-9N0B-4V7C-2X1M", "UZL-2W7P-5Q3K-R9T8",
-    "UZL-6M2L-9F5D-K1J3", "UZL-0N1M-4B7V-C2X8", "UZL-4Q3W-7P9K-R2T5", "UZL-8F6D-1J2K-M3L5",
-    "UZL-3V2C-7X1B-N9M0", "UZL-9W5P-2Q8K-R3T7", "UZL-5M1L-8F4D-K2J6", "UZL-0B7V-4C2X-1M9N",
-    "UZL-6Q7W-2P3K-R5T9", "UZL-1F9D-5J4K-M2L8", "UZL-7V3C-8X2B-N0M1", "UZL-2W9P-6Q4K-R7T3"
-)
-
-# 3. ฟังก์ชันดึงค่า Hardware ID สำหรับล็อกเครื่อง
-function Get-DeviceHWID {
-    return (Get-CimInstance Win32_ComputerSystemProduct).UUID
-}
-
-$RegPath = "HKLM:\SOFTWARE\UltimateZeroLatency"
-$CurrentHWID = Get-DeviceHWID
-
-# โหลด Windows Forms Assembly
+#Requires -Version 5.0
+# ╔══════════════════════════════════════════════════════════════════════╗
+# ║   ULTIMATE ZERO LATENCY v4.4  │  Cyberpunk Dark UI  │  WinForms    ║
+# ╚══════════════════════════════════════════════════════════════════════╝
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
+[System.Windows.Forms.Application]::EnableVisualStyles()
 
-# สร้างหน้าต่างหลัก
-$Form = New-Object System.Windows.Forms.Form
-$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.3"
-$Form.Size = New-Object System.Drawing.Size(550, 600)
-$Form.StartPosition = "CenterScreen"
-$Form.FormBorderStyle = "FixedSingle"
-$Form.MaximizeBox = $false
-$Form.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
-
-function Set-ControlStyle ($Control, $ForeColor, $BackColor) {
-    $Control.ForeColor = $ForeColor
-    $Control.BackColor = $BackColor
-    $Control.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Bold)
+# ═══════════════════════════ COLOR PALETTE ══════════════════════════════
+$C = @{
+    BG      = [Drawing.Color]::FromArgb(8,   10,  18)
+    Panel   = [Drawing.Color]::FromArgb(13,  15,  26)
+    Card    = [Drawing.Color]::FromArgb(18,  22,  38)
+    Dark    = [Drawing.Color]::FromArgb(28,  32,  52)
+    Cyan    = [Drawing.Color]::FromArgb(0,   200, 255)
+    CyanDim = [Drawing.Color]::FromArgb(0,    70, 110)
+    Green   = [Drawing.Color]::FromArgb(0,   220, 110)
+    Yellow  = [Drawing.Color]::FromArgb(255, 200,  40)
+    Red     = [Drawing.Color]::FromArgb(255,  65,  65)
+    Text    = [Drawing.Color]::FromArgb(185, 210, 255)
+    Dim     = [Drawing.Color]::FromArgb(65,   88, 128)
+    White   = [Drawing.Color]::White
 }
 
-# ==========================================
-# LOGIN PANEL
-# ==========================================
-$LoginPanel = New-Object System.Windows.Forms.Panel
-$LoginPanel.Size = $Form.ClientSize
-$LoginPanel.BackColor = [System.Drawing.Color]::FromArgb(25, 25, 30)
-$Form.Controls.Add($LoginPanel)
-
-$TitleLabel = New-Object System.Windows.Forms.Label
-$TitleLabel.Text = "ULTIMATE ZERO LATENCY v4.3"
-$TitleLabel.Size = New-Object System.Drawing.Size(500, 40)
-$TitleLabel.Location = New-Object System.Drawing.Point(25, 30)
-$TitleLabel.Font = New-Object System.Drawing.Font("Consolas", 18, [System.Drawing.FontStyle]::Bold)
-$TitleLabel.ForeColor = [System.Drawing.Color]::Cyan
-$TitleLabel.TextAlign = "MiddleCenter"
-$LoginPanel.Controls.Add($TitleLabel)
-
-$KeyLabel = New-Object System.Windows.Forms.Label
-$KeyLabel.Text = "กรุณาใส่ LICENSE KEY เพื่อเปิดใช้งานสคริปต์:"
-$KeyLabel.Size = New-Object System.Drawing.Size(450, 25)
-$KeyLabel.Location = New-Object System.Drawing.Point(50, 180)
-$KeyLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11)
-$KeyLabel.ForeColor = [System.Drawing.Color]::White
-$KeyLabel.TextAlign = "MiddleCenter"
-$LoginPanel.Controls.Add($KeyLabel)
-
-$KeyInput = New-Object System.Windows.Forms.TextBox
-$KeyInput.Size = New-Object System.Drawing.Size(350, 30)
-$KeyInput.Location = New-Object System.Drawing.Point(100, 220)
-$KeyInput.Font = New-Object System.Drawing.Font("Consolas", 12)
-$KeyInput.TextAlign = "Center"
-$LoginPanel.Controls.Add($KeyInput)
-
-$ActivateBtn = New-Object System.Windows.Forms.Button
-$ActivateBtn.Text = "ACTIVATE SYSTEM"
-$ActivateBtn.Size = New-Object System.Drawing.Size(200, 45)
-$ActivateBtn.Location = New-Object System.Drawing.Point(175, 280)
-Set-ControlStyle $ActivateBtn ([System.Drawing.Color]::Black) ([System.Drawing.Color]::LimeGreen)
-$LoginPanel.Controls.Add($ActivateBtn)
-
-$StatusLabel = New-Object System.Windows.Forms.Label
-$StatusLabel.Text = "สถานะ: รอการเปิดใช้งาน..."
-$StatusLabel.Size = New-Object System.Drawing.Size(450, 25)
-$StatusLabel.Location = New-Object System.Drawing.Point(50, 350)
-$StatusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10)
-$StatusLabel.ForeColor = [System.Drawing.Color]::DarkGray
-$StatusLabel.TextAlign = "MiddleCenter"
-$LoginPanel.Controls.Add($StatusLabel)
-
-
-# ==========================================
-# MAIN TWEAK PANEL
-# ==========================================
-$MainPanel = New-Object System.Windows.Forms.Panel
-$MainPanel.Size = $Form.ClientSize
-$MainPanel.Visible = $false
-$Form.Controls.Add($MainPanel)
-
-$MainTitle = New-Object System.Windows.Forms.Label
-$MainTitle.Text = "TWEAK ENGINE SELECTION"
-$MainTitle.Size = New-Object System.Drawing.Size(500, 35)
-$MainTitle.Location = New-Object System.Drawing.Point(25, 20)
-$MainTitle.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
-$MainTitle.ForeColor = [System.Drawing.Color]::LimeGreen
-$MainTitle.TextAlign = "MiddleCenter"
-$MainPanel.Controls.Add($MainTitle)
-
-$ChkBxStyle = {
-    param($cb, $text, $y)
-    $cb.Text = $text
-    $cb.Size = New-Object System.Drawing.Size(450, 30)
-    $cb.Location = New-Object System.Drawing.Point(40, $y)
-    $cb.Font = New-Object System.Drawing.Font("Segoe UI", 10, [System.Drawing.FontStyle]::Regular)
-    $cb.ForeColor = [System.Drawing.Color]::White
-    $cb.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
-    $cb.Checked = $true
+# ═══════════════════════════════ FONTS ══════════════════════════════════
+$F = @{
+    H1    = New-Object Drawing.Font("Consolas", 14, [Drawing.FontStyle]::Bold)
+    Code  = New-Object Drawing.Font("Consolas",  8)
+    Tiny  = New-Object Drawing.Font("Consolas",  7)
+    UIB   = New-Object Drawing.Font("Segoe UI",  9, [Drawing.FontStyle]::Bold)
+    UI    = New-Object Drawing.Font("Segoe UI",  9)
 }
 
-$cb1 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb1 "Step 1: Optimize Kernel Time & Platform Clock" 70
-$cb2 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb2 "Step 2: Gaming Priority Control & Throttling Off" 105
-$cb3 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb3 "Step 3: Force HAGS & Game Mode Optimization" 140
-$cb4 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb4 "Step 4: Force 1:1 Raw Input Mouse/Keyboard" 175
-$cb5 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb5 "Step 5: Recalibrate TCP/IP & Network Latency" 210
+# ═════════════════════════ TWEAK DEFINITIONS ════════════════════════════
+$tweaks = @(
+    @{ Name="Disable Visual FX (Performance Mode)"; Cat="System "; Def=$true  }
+    @{ Name="Set Power Plan: High Performance";     Cat="System "; Def=$true  }
+    @{ Name="Disable Xbox Game Bar & DVR";          Cat="Gaming "; Def=$true  }
+    @{ Name="Enable Hardware GPU Scheduling";       Cat="Gaming "; Def=$false }
+    @{ Name="Optimize TCP/IP (AutoTuning)";         Cat="Network"; Def=$true  }
+    @{ Name="Flush DNS Cache";                      Cat="Network"; Def=$true  }
+    @{ Name="Clear %TEMP% Files";                   Cat="Cleanup"; Def=$true  }
+    @{ Name="Clear Prefetch Data";                  Cat="Cleanup"; Def=$false }
+    @{ Name="Disable Hibernate (SSD Recommended)"; Cat="Power  "; Def=$false }
+    @{ Name="Disable SysMain / Superfetch";         Cat="Service"; Def=$false }
+)
 
-$MainPanel.Controls.AddRange(@($cb1, $cb2, $cb3, $cb4, $cb5))
-
-$LogBox = New-Object System.Windows.Forms.TextBox
-$LogBox.Multiline = $true
-$LogBox.ReadOnly = $true
-$LogBox.ScrollBars = "Vertical"
-$LogBox.Size = New-Object System.Drawing.Size(460, 200)
-$LogBox.Location = New-Object System.Drawing.Point(45, 260)
-$LogBox.BackColor = [System.Drawing.Color]::FromArgb(10, 10, 10)
-$LogBox.ForeColor = [System.Drawing.Color]::Cyan
-$LogBox.Font = New-Object System.Drawing.Font("Consolas", 9)
-$MainPanel.Controls.Add($LogBox)
-
-$ApplyBtn = New-Object System.Windows.Forms.Button
-$ApplyBtn.Text = "ENGAGE OPTIMIZATION"
-$ApplyBtn.Size = New-Object System.Drawing.Size(460, 45)
-$ApplyBtn.Location = New-Object System.Drawing.Point(45, 480)
-Set-ControlStyle $ApplyBtn ([System.Drawing.Color]::Black) ([System.Drawing.Color]::Cyan)
-$MainPanel.Controls.Add($ApplyBtn)
-
-# ==========================================
-# [BUG FIX #2] Write-Log — ลบ Control.Invoke + [Action[string]] ออก
-# เรียกใช้งานจาก UI thread อยู่แล้ว และ delegate แบบเดิม
-# อาจหา $LogBox ไม่เจอเพราะไม่ได้ทำ closure capture ไว้
-# ==========================================
-function Write-Log ($Message) {
-    $LogBox.AppendText("[$((Get-Date).ToString('HH:mm:ss'))] $Message`r`n")
+# ══════════════════════════ APPLY FUNCTIONS ════════════════════════════
+function Invoke-Tweak($name) {
+    switch ($name) {
+        "Disable Visual FX (Performance Mode)" {
+            try {
+                $k = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects"
+                if (-not (Test-Path $k)) { New-Item $k -Force | Out-Null }
+                Set-ItemProperty $k VisualFXSetting 2
+                # SystemParametersInfo SPI_SETANIMATION
+                $k2 = "HKCU:\Control Panel\Desktop\WindowMetrics"
+                Set-ItemProperty "HKCU:\Control Panel\Desktop" "UserPreferencesMask" -Value ([byte[]](0x90,0x12,0x03,0x80,0x10,0x00,0x00,0x00)) -Type Binary -EA SilentlyContinue
+                Add-Log "Visual FX → Performance mode" Green
+            } catch { Add-Log "Visual FX: $($_.Exception.Message)" Red }
+        }
+        "Set Power Plan: High Performance" {
+            try {
+                $r = powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>&1
+                if ($LASTEXITCODE -ne 0) {
+                    # Try creating it if not present
+                    powercfg /duplicatescheme 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>&1 | Out-Null
+                    powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c 2>&1 | Out-Null
+                }
+                Add-Log "Power Plan → High Performance activated" Green
+            } catch { Add-Log "Power Plan: $($_.Exception.Message)" Red }
+        }
+        "Disable Xbox Game Bar & DVR" {
+            try {
+                $k = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"
+                if (Test-Path $k) { Set-ItemProperty $k AppCaptureEnabled 0 -EA SilentlyContinue }
+                Set-ItemProperty "HKCU:\System\GameConfigStore" GameDVR_Enabled 0 -EA SilentlyContinue
+                Add-Log "Xbox Game Bar & DVR disabled" Green
+            } catch { Add-Log "Game Bar: $($_.Exception.Message)" Red }
+        }
+        "Enable Hardware GPU Scheduling" {
+            try {
+                $k = "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"
+                Set-ItemProperty $k HwSchMode 2 -EA SilentlyContinue
+                Add-Log "Hardware GPU Scheduling enabled (⚠ reboot required)" Yellow
+            } catch { Add-Log "GPU Sched: $($_.Exception.Message)" Red }
+        }
+        "Optimize TCP/IP (AutoTuning)" {
+            try {
+                netsh int tcp set global autotuninglevel=normal 2>&1 | Out-Null
+                netsh int tcp set global ecncapability=enabled 2>&1 | Out-Null
+                netsh int tcp set global timestamps=disabled 2>&1 | Out-Null
+                Add-Log "TCP/IP optimized (AutoTuning=Normal, ECN, no timestamps)" Green
+            } catch { Add-Log "TCP/IP: $($_.Exception.Message)" Red }
+        }
+        "Flush DNS Cache" {
+            try {
+                ipconfig /flushdns 2>&1 | Out-Null
+                Add-Log "DNS cache flushed" Green
+            } catch { Add-Log "DNS flush: $($_.Exception.Message)" Red }
+        }
+        "Clear %TEMP% Files" {
+            try {
+                $n = 0
+                @($env:TEMP, $env:TMP, "C:\Windows\Temp") | ForEach-Object {
+                    if (Test-Path $_) {
+                        Get-ChildItem $_ -Recurse -Force -EA SilentlyContinue |
+                            Where-Object { !$_.PSIsContainer } | ForEach-Object {
+                                try { Remove-Item $_.FullName -Force -EA Stop; $n++ } catch {}
+                            }
+                    }
+                }
+                Add-Log "Temp files cleared ($n files removed)" Green
+            } catch { Add-Log "Temp: $($_.Exception.Message)" Red }
+        }
+        "Clear Prefetch Data" {
+            try {
+                $files = Get-ChildItem "C:\Windows\Prefetch" -Filter "*.pf" -EA SilentlyContinue
+                $n = ($files | Measure-Object).Count
+                $files | ForEach-Object { try { Remove-Item $_.FullName -Force -EA Stop } catch {} }
+                Add-Log "Prefetch cleared ($n .pf files removed)" Green
+            } catch { Add-Log "Prefetch: $($_.Exception.Message)" Red }
+        }
+        "Disable Hibernate (SSD Recommended)" {
+            try {
+                powercfg /hibernate off 2>&1 | Out-Null
+                Add-Log "Hibernate disabled (hiberfil.sys freed)" Green
+            } catch { Add-Log "Hibernate: $($_.Exception.Message)" Red }
+        }
+        "Disable SysMain / Superfetch" {
+            try {
+                Set-Service SysMain -StartupType Disabled -EA SilentlyContinue
+                Stop-Service SysMain -Force -EA SilentlyContinue
+                Add-Log "SysMain service disabled (⚠ not recommended on HDD)" Yellow
+            } catch { Add-Log "SysMain: $($_.Exception.Message)" Red }
+        }
+    }
 }
 
-# ==========================================
-# EVENTS & LOGIC
-# ==========================================
-function Show-MainDashboard {
-    $LoginPanel.Visible = $false
-    $MainPanel.Visible = $true
-    Write-Log "System Authorized. Ready to optimize."
+function Invoke-Restore($name) {
+    switch ($name) {
+        "Disable Visual FX (Performance Mode)" {
+            try {
+                Set-ItemProperty "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects" VisualFXSetting 0 -EA SilentlyContinue
+                Add-Log "Visual FX → restored to Windows default" Yellow
+            } catch {}
+        }
+        "Set Power Plan: High Performance" {
+            try {
+                powercfg /setactive 381b4222-f694-41f0-9685-ff5bb260df2e 2>&1 | Out-Null
+                Add-Log "Power Plan → Balanced (default)" Yellow
+            } catch {}
+        }
+        "Disable Xbox Game Bar & DVR" {
+            try {
+                $k = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR"
+                if (Test-Path $k) { Set-ItemProperty $k AppCaptureEnabled 1 -EA SilentlyContinue }
+                Set-ItemProperty "HKCU:\System\GameConfigStore" GameDVR_Enabled 1 -EA SilentlyContinue
+                Add-Log "Xbox Game Bar re-enabled" Yellow
+            } catch {}
+        }
+        "Enable Hardware GPU Scheduling" {
+            try {
+                Set-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" HwSchMode 1 -EA SilentlyContinue
+                Add-Log "GPU Scheduling → default (⚠ reboot required)" Yellow
+            } catch {}
+        }
+        "Optimize TCP/IP (AutoTuning)" {
+            try {
+                netsh int tcp set global autotuninglevel=normal 2>&1 | Out-Null
+                Add-Log "TCP/IP settings restored to normal" Yellow
+            } catch {}
+        }
+        "Disable SysMain / Superfetch" {
+            try {
+                Set-Service SysMain -StartupType Automatic -EA SilentlyContinue
+                Start-Service SysMain -EA SilentlyContinue
+                Add-Log "SysMain service re-enabled" Yellow
+            } catch {}
+        }
+        "Disable Hibernate (SSD Recommended)" {
+            try {
+                powercfg /hibernate on 2>&1 | Out-Null
+                Add-Log "Hibernate re-enabled" Yellow
+            } catch {}
+        }
+        default { Add-Log "$name → no restore action needed" Dim }
+    }
 }
 
-if (Test-Path $RegPath) {
-    $SavedKey = (Get-ItemProperty -Path $RegPath -Name "LicenseKey" -ErrorAction SilentlyContinue).LicenseKey
-    $SavedHWID = (Get-ItemProperty -Path $RegPath -Name "HWID" -ErrorAction SilentlyContinue).HWID
-    if ($SavedHWID -eq $CurrentHWID -and $ValidKeys -contains $SavedKey) { Show-MainDashboard }
+# ════════════════════════════ MAIN FORM ═════════════════════════════════
+$form = New-Object Windows.Forms.Form
+$form.Text            = "ULTIMATE ZERO LATENCY v4.4"
+$form.ClientSize      = [Drawing.Size]::new(860, 640)
+$form.StartPosition   = "CenterScreen"
+$form.BackColor       = $C.BG
+$form.ForeColor       = $C.Text
+$form.FormBorderStyle = "FixedSingle"
+$form.MaximizeBox     = $false
+$form.Font            = $F.UI
+
+# ── HEADER ───────────────────────────────────────────────────────────────
+$pHdr = New-Object Windows.Forms.Panel
+$pHdr.Size      = [Drawing.Size]::new(860, 72)
+$pHdr.Location  = [Drawing.Point]::new(0, 0)
+$pHdr.BackColor = $C.Panel
+
+$pHdr.Add_Paint({
+    param($s,$e); $g = $e.Graphics
+    $g.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
+    # Accent gradient line at top
+    $br = New-Object Drawing.Drawing2D.LinearGradientBrush(
+        [Drawing.Rectangle]::new(0,0,$s.Width,3),
+        [Drawing.Color]::FromArgb(0,190,255), [Drawing.Color]::FromArgb(0,50,180), 0.0)
+    $g.FillRectangle($br, 0, 0, $s.Width, 3); $br.Dispose()
+    # Left glow
+    $br2 = New-Object Drawing.Drawing2D.LinearGradientBrush(
+        [Drawing.Rectangle]::new(0,3,130,$s.Height),
+        [Drawing.Color]::FromArgb(18,0,170,240), [Drawing.Color]::Transparent, 0.0)
+    $g.FillRectangle($br2, 0, 3, 130, $s.Height); $br2.Dispose()
+    # Left accent bar
+    $g.FillRectangle([Drawing.SolidBrush]::new($C.Cyan), 0, 3, 3, $s.Height-3)
+    # Bottom border
+    $g.DrawLine([Drawing.Pen]::new($C.CyanDim, 1), 0, $s.Height-1, $s.Width, $s.Height-1)
+    # Title
+    $g.DrawString("  ⚡ ZERO LATENCY", $F.H1, [Drawing.SolidBrush]::new($C.Cyan), 10, 10)
+    $g.DrawString("     ULTIMATE PERFORMANCE OPTIMIZER  //  v4.4  //  WINDOWS 10 FRAMEWORK",
+        $F.Tiny, [Drawing.SolidBrush]::new($C.Dim), 10, 46)
+})
+$form.Controls.Add($pHdr)
+
+# Header: CPU badge
+$lblCPUStat = New-Object Windows.Forms.Label
+$lblCPUStat.Text      = "CPU  ░░░░░░░░░░  0%"
+$lblCPUStat.Font      = $F.Tiny
+$lblCPUStat.ForeColor = $C.Green
+$lblCPUStat.BackColor = [Drawing.Color]::FromArgb(15, 0, 220, 110)
+$lblCPUStat.Size      = [Drawing.Size]::new(145, 18)
+$lblCPUStat.Location  = [Drawing.Point]::new(545, 20)
+$lblCPUStat.TextAlign = "MiddleCenter"
+$pHdr.Controls.Add($lblCPUStat)
+
+# Header: RAM badge
+$lblRAMStat = New-Object Windows.Forms.Label
+$lblRAMStat.Text      = "RAM  --/-- GB"
+$lblRAMStat.Font      = $F.Tiny
+$lblRAMStat.ForeColor = $C.Yellow
+$lblRAMStat.BackColor = [Drawing.Color]::FromArgb(15, 255, 200, 40)
+$lblRAMStat.Size      = [Drawing.Size]::new(145, 18)
+$lblRAMStat.Location  = [Drawing.Point]::new(700, 20)
+$lblRAMStat.TextAlign = "MiddleCenter"
+$pHdr.Controls.Add($lblRAMStat)
+
+# Header: status dot
+$lblStatusDot = New-Object Windows.Forms.Label
+$lblStatusDot.Text      = "●  INITIALIZING..."
+$lblStatusDot.Font      = $F.Tiny
+$lblStatusDot.ForeColor = $C.Yellow
+$lblStatusDot.BackColor = $C.Panel
+$lblStatusDot.AutoSize  = $true
+$lblStatusDot.Location  = [Drawing.Point]::new(545, 48)
+$pHdr.Controls.Add($lblStatusDot)
+
+# ── TICKER BAR ────────────────────────────────────────────────────────────
+$pTicker = New-Object Windows.Forms.Panel
+$pTicker.Size      = [Drawing.Size]::new(860, 24)
+$pTicker.Location  = [Drawing.Point]::new(0, 72)
+$pTicker.BackColor = [Drawing.Color]::FromArgb(10, 12, 22)
+
+$lblTicker = New-Object Windows.Forms.Label
+$lblTicker.Text      = "Loading system information..."
+$lblTicker.Font      = $F.Tiny
+$lblTicker.ForeColor = $C.Dim
+$lblTicker.BackColor = [Drawing.Color]::FromArgb(10, 12, 22)
+$lblTicker.Size      = [Drawing.Size]::new(850, 24)
+$lblTicker.Location  = [Drawing.Point]::new(6, 4)
+$pTicker.Controls.Add($lblTicker)
+$form.Controls.Add($pTicker)
+
+# ── LEFT PANEL: TWEAKS ────────────────────────────────────────────────────
+$pLeft = New-Object Windows.Forms.Panel
+$pLeft.Size      = [Drawing.Size]::new(380, 275)
+$pLeft.Location  = [Drawing.Point]::new(10, 103)
+$pLeft.BackColor = $C.Card
+
+$pLeft.Add_Paint({
+    param($s,$e); $g = $e.Graphics
+    $g.DrawRectangle([Drawing.Pen]::new($C.CyanDim, 1), 0, 0, $s.Width-1, $s.Height-1)
+    $g.FillRectangle([Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(210, 18, 22, 38)), 0, 0, $s.Width, 22)
+    $g.DrawLine([Drawing.Pen]::new($C.CyanDim, 1), 0, 22, $s.Width, 22)
+    $g.DrawString("  ▸ TWEAK SELECTION", $F.Code, [Drawing.SolidBrush]::new($C.Cyan), 4, 4)
+})
+
+$clb = New-Object Windows.Forms.CheckedListBox
+$clb.Size        = [Drawing.Size]::new(358, 246)
+$clb.Location    = [Drawing.Point]::new(11, 24)
+$clb.BackColor   = $C.Card
+$clb.ForeColor   = $C.Text
+$clb.Font        = $F.UI
+$clb.BorderStyle = "None"
+$clb.CheckOnClick = $true
+
+foreach ($t in $tweaks) {
+    $idx = $clb.Items.Add("[$($t.Cat)]  $($t.Name)")
+    $clb.SetItemChecked($idx, $t.Def)
+}
+$pLeft.Controls.Add($clb)
+$form.Controls.Add($pLeft)
+
+# ── RIGHT PANEL: SYSTEM INFO ──────────────────────────────────────────────
+$pRight = New-Object Windows.Forms.Panel
+$pRight.Size      = [Drawing.Size]::new(450, 275)
+$pRight.Location  = [Drawing.Point]::new(400, 103)
+$pRight.BackColor = $C.Card
+
+$pRight.Add_Paint({
+    param($s,$e); $g = $e.Graphics
+    $g.DrawRectangle([Drawing.Pen]::new($C.CyanDim, 1), 0, 0, $s.Width-1, $s.Height-1)
+    $g.FillRectangle([Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(210, 18, 22, 38)), 0, 0, $s.Width, 22)
+    $g.DrawLine([Drawing.Pen]::new($C.CyanDim, 1), 0, 22, $s.Width, 22)
+    $g.DrawString("  ▸ SYSTEM INFORMATION", $F.Code, [Drawing.SolidBrush]::new($C.Cyan), 4, 4)
+})
+
+function Add-InfoRow($parent, $label, $value, $y, $valColor) {
+    $lL = New-Object Windows.Forms.Label
+    $lL.Text = $label; $lL.Font = $F.Tiny; $lL.ForeColor = $C.Dim
+    $lL.BackColor = $C.Card; $lL.Location = [Drawing.Point]::new(12, $y)
+    $lL.Size = [Drawing.Size]::new(68, 16)
+    $lV = New-Object Windows.Forms.Label
+    $lV.Text = $value; $lV.Font = $F.Code; $lV.ForeColor = $valColor
+    $lV.BackColor = $C.Card; $lV.Location = [Drawing.Point]::new(84, $y)
+    $lV.Size = [Drawing.Size]::new(355, 16)
+    $parent.Controls.AddRange(@($lL, $lV))
+    return $lV
 }
 
-$ActivateBtn.Add_Click({
-    $EnteredKey = $KeyInput.Text.Trim().ToUpper()
-    if (-not $EnteredKey) {
-        $StatusLabel.Text = "กรุณากรอกคีย์ก่อนครับ!"
-        $StatusLabel.ForeColor = [System.Drawing.Color]::Red
-        return
+# Gather system info
+try { $osObj  = Get-CimInstance Win32_OperatingSystem -EA Stop } catch { $osObj = $null }
+try { $cpuObj = Get-CimInstance Win32_Processor       -EA Stop | Select-Object -First 1 } catch { $cpuObj = $null }
+try { $gpuObj = Get-CimInstance Win32_VideoController -EA Stop | Select-Object -First 1 } catch { $gpuObj = $null }
+try { $diskC  = Get-PSDrive C -EA Stop } catch { $diskC = $null }
+
+$siOS   = if ($osObj)  { $osObj.Caption -replace "Microsoft ", "" }   else { "Unknown" }
+$siCPU  = if ($cpuObj) { $cpuObj.Name.Trim() -replace "\s+"," " }     else { "Unknown" }
+$siCPU  = $siCPU -replace "\(TM\)|\(R\)", ""
+$siRAM  = if ($osObj)  { "$([math]::Round($osObj.TotalVisibleMemorySize/1MB,1)) GB total" } else { "N/A" }
+$siGPU  = if ($gpuObj) { $gpuObj.Caption }                            else { "Unknown" }
+$siDisk = if ($diskC)  { "C: $([math]::Round($diskC.Used/1GB,1)) GB used / $([math]::Round(($diskC.Used+$diskC.Free)/1GB,0)) GB" } else { "N/A" }
+try { $uptime = (Get-Date) - $osObj.LastBootUpTime; $siUp = "$($uptime.Days)d $($uptime.Hours)h $($uptime.Minutes)m" } catch { $siUp = "N/A" }
+
+$y0 = 30
+Add-InfoRow $pRight "HOST"    $env:COMPUTERNAME                    $y0       $C.White      | Out-Null; $y0 += 26
+Add-InfoRow $pRight "USER"    $env:USERNAME                         $y0       $C.Text       | Out-Null; $y0 += 26
+Add-InfoRow $pRight "OS"      $siOS                                $y0       $C.Text       | Out-Null; $y0 += 26
+Add-InfoRow $pRight "ARCH"    $env:PROCESSOR_ARCHITECTURE          $y0       $C.Dim        | Out-Null; $y0 += 26
+Add-InfoRow $pRight "CPU"     $siCPU                               $y0       $C.Cyan       | Out-Null; $y0 += 26
+Add-InfoRow $pRight "RAM"     $siRAM                               $y0       $C.Green      | Out-Null; $y0 += 26
+Add-InfoRow $pRight "GPU"     $siGPU                               $y0       $C.Yellow     | Out-Null; $y0 += 26
+
+$sep = New-Object Windows.Forms.Panel
+$sep.Location = [Drawing.Point]::new(12, $y0); $sep.Size = [Drawing.Size]::new(425, 1)
+$sep.BackColor = $C.CyanDim
+$pRight.Controls.Add($sep); $y0 += 8
+
+Add-InfoRow $pRight "DISK"    $siDisk                              $y0       $C.Text       | Out-Null; $y0 += 26
+Add-InfoRow $pRight "UPTIME"  $siUp                                $y0       $C.Cyan       | Out-Null
+
+$form.Controls.Add($pRight)
+
+# ── LOG PANEL ─────────────────────────────────────────────────────────────
+$pLog = New-Object Windows.Forms.Panel
+$pLog.Size      = [Drawing.Size]::new(840, 160)
+$pLog.Location  = [Drawing.Point]::new(10, 386)
+$pLog.BackColor = $C.Card
+
+$pLog.Add_Paint({
+    param($s,$e); $g = $e.Graphics
+    $g.DrawRectangle([Drawing.Pen]::new($C.CyanDim, 1), 0, 0, $s.Width-1, $s.Height-1)
+    $g.FillRectangle([Drawing.SolidBrush]::new([Drawing.Color]::FromArgb(210, 18, 22, 38)), 0, 0, $s.Width, 22)
+    $g.DrawLine([Drawing.Pen]::new($C.CyanDim, 1), 0, 22, $s.Width, 22)
+    $g.DrawString("  ▸ OPERATION LOG", $F.Code, [Drawing.SolidBrush]::new($C.Cyan), 4, 4)
+})
+
+$rtLog = New-Object Windows.Forms.RichTextBox
+$rtLog.Size        = [Drawing.Size]::new(820, 130)
+$rtLog.Location    = [Drawing.Point]::new(10, 26)
+$rtLog.BackColor   = $C.BG
+$rtLog.ForeColor   = $C.Text
+$rtLog.Font        = $F.Code
+$rtLog.BorderStyle = "None"
+$rtLog.ReadOnly    = $true
+$rtLog.ScrollBars  = "Vertical"
+$rtLog.WordWrap    = $false
+$pLog.Controls.Add($rtLog)
+$form.Controls.Add($pLog)
+
+function Add-Log($msg, $colorKey = "Text") {
+    $rtLog.SelectionStart  = $rtLog.TextLength
+    $rtLog.SelectionLength = 0
+    $rtLog.SelectionColor  = $C.Dim
+    $rtLog.AppendText("[$(Get-Date -f 'HH:mm:ss')] ")
+    $rtLog.SelectionColor  = $C[$colorKey]
+    $rtLog.AppendText("$msg`n")
+    $rtLog.ScrollToCaret()
+}
+
+# ── PROGRESS BAR ──────────────────────────────────────────────────────────
+$pPB = New-Object Windows.Forms.Panel
+$pPB.Size      = [Drawing.Size]::new(840, 22)
+$pPB.Location  = [Drawing.Point]::new(10, 554)
+$pPB.BackColor = $C.Dark
+
+$pb = New-Object Windows.Forms.ProgressBar
+$pb.Size      = [Drawing.Size]::new(840, 22)
+$pb.Location  = [Drawing.Point]::new(0, 0)
+$pb.Style     = "Continuous"
+$pb.Value     = 0
+$pb.ForeColor = $C.Cyan
+$pb.BackColor = $C.Dark
+$pPB.Controls.Add($pb)
+$form.Controls.Add($pPB)
+
+# ── PROGRESS LABEL overlay ────────────────────────────────────────────────
+$lblPct = New-Object Windows.Forms.Label
+$lblPct.Text      = "0%"
+$lblPct.Font      = $F.Tiny
+$lblPct.ForeColor = $C.Cyan
+$lblPct.BackColor = $C.Dark
+$lblPct.AutoSize  = $true
+$lblPct.Location  = [Drawing.Point]::new(812, 558)
+$form.Controls.Add($lblPct)
+
+# ── BUTTONS ───────────────────────────────────────────────────────────────
+function New-FlatBtn($text, $x, $y, $w, $h, $bg, $fg) {
+    $b = New-Object Windows.Forms.Button
+    $b.Text = $text; $b.Size = [Drawing.Size]::new($w, $h); $b.Location = [Drawing.Point]::new($x, $y)
+    $b.FlatStyle = "Flat"; $b.FlatAppearance.BorderColor = $fg; $b.FlatAppearance.BorderSize = 1
+    $b.BackColor = $bg; $b.ForeColor = $fg; $b.Font = $F.UIB
+    $b.Cursor = [Windows.Forms.Cursors]::Hand
+    $b.FlatAppearance.MouseOverBackColor  = [Drawing.Color]::FromArgb(40, $fg.R, $fg.G, $fg.B)
+    $b.FlatAppearance.MouseDownBackColor  = [Drawing.Color]::FromArgb(70, $fg.R, $fg.G, $fg.B)
+    return $b
+}
+
+$btnApply   = New-FlatBtn "⚡  APPLY OPTIMIZATION"   10 584 410 44 ([Drawing.Color]::FromArgb(0,  30, 55)) $C.Cyan
+$btnRestore = New-FlatBtn "↩  RESTORE DEFAULTS"     440 584 410 44 ([Drawing.Color]::FromArgb(50, 28,  8)) $C.Yellow
+
+# ── APPLY CLICK ───────────────────────────────────────────────────────────
+$btnApply.Add_Click({
+    $sel = @(); for ($i=0; $i -lt $clb.Items.Count; $i++) { if ($clb.GetItemChecked($i)) { $sel += $tweaks[$i].Name } }
+    if ($sel.Count -eq 0) { Add-Log "No tweaks selected." Yellow; return }
+
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        $r = [Windows.Forms.MessageBox]::Show(
+            "Some tweaks require Administrator privileges.`nContinue anyway (partial apply)?",
+            "ZERO LATENCY", [Windows.Forms.MessageBoxButtons]::YesNo, [Windows.Forms.MessageBoxIcon]::Warning)
+        if ($r -ne "Yes") { return }
     }
 
-    if ($ValidKeys -contains $EnteredKey) {
-        if (Test-Path $RegPath) {
-            $CheckKey = (Get-ItemProperty -Path $RegPath -Name "LicenseKey" -ErrorAction SilentlyContinue).LicenseKey
-            $CheckHWID = (Get-ItemProperty -Path $RegPath -Name "HWID" -ErrorAction SilentlyContinue).HWID
+    $btnApply.Enabled = $false; $btnRestore.Enabled = $false
+    $pb.Value = 0; $step = [math]::Max(1, [math]::Floor(100 / $sel.Count))
+    $lblStatusDot.ForeColor = $C.Yellow; $lblStatusDot.Text = "⚙  APPLYING..."
+    Add-Log ("═" * 46) Dim
+    Add-Log "APPLY — $($sel.Count) tweak(s) selected" Cyan
+    Add-Log ("─" * 46) Dim
 
-            if ($CheckKey -eq $EnteredKey -and $CheckHWID -ne $CurrentHWID) {
-                $StatusLabel.Text = "คีย์นี้ถูกล็อกใช้งานกับเครื่องอื่นไปแล้ว!"
-                $StatusLabel.ForeColor = [System.Drawing.Color]::Red
-                return
-            }
-        }
-        if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
-        Set-ItemProperty -Path $RegPath -Name "LicenseKey" -Value $EnteredKey -Force
-        Set-ItemProperty -Path $RegPath -Name "HWID" -Value $CurrentHWID -Force
+    $i = 0
+    foreach ($name in $sel) {
+        Add-Log "» $name" Text
+        Invoke-Tweak $name
+        $i++; $v = [math]::Min(100, $step * $i); $pb.Value = $v; $lblPct.Text = "$v%"
+        $form.Refresh(); Start-Sleep -Milliseconds 120
+    }
 
-        $StatusLabel.Text = "เปิดใช้งานสำเร็จ กำลังเข้าสู่ระบบ..."
-        $StatusLabel.ForeColor = [System.Drawing.Color]::LimeGreen
+    $pb.Value = 100; $lblPct.Text = "100%"
+    Add-Log ("─" * 46) Dim
+    Add-Log "COMPLETE — All tweaks applied." Green
+    $lblStatusDot.ForeColor = $C.Green; $lblStatusDot.Text = "●  OPTIMIZED"
+    $btnApply.Enabled = $true; $btnRestore.Enabled = $true
 
-        $Timer = New-Object System.Windows.Forms.Timer
-        $Timer.Interval = 1200
-        $Timer.Add_Tick({
-            param($sender, $e)
-            $sender.Stop()
-            Show-MainDashboard
-        })
-        $Timer.Start()
+    [Windows.Forms.MessageBox]::Show(
+        "Optimization complete!`n$($sel.Count) tweak(s) applied successfully.",
+        "ZERO LATENCY v4.4", [Windows.Forms.MessageBoxButtons]::OK,
+        [Windows.Forms.MessageBoxIcon]::Information)
+})
+
+# ── RESTORE CLICK ─────────────────────────────────────────────────────────
+$btnRestore.Add_Click({
+    $r = [Windows.Forms.MessageBox]::Show(
+        "Restore checked tweaks to Windows defaults?",
+        "ZERO LATENCY v4.4", [Windows.Forms.MessageBoxButtons]::YesNo,
+        [Windows.Forms.MessageBoxIcon]::Warning)
+    if ($r -ne "Yes") { return }
+
+    $sel = @(); for ($i=0; $i -lt $clb.Items.Count; $i++) { if ($clb.GetItemChecked($i)) { $sel += $tweaks[$i].Name } }
+    $btnApply.Enabled = $false; $btnRestore.Enabled = $false
+    $pb.Value = 0; $step = if ($sel.Count -gt 0) { [math]::Floor(100 / $sel.Count) } else { 100 }
+    $lblStatusDot.ForeColor = $C.Yellow; $lblStatusDot.Text = "⚙  RESTORING..."
+    Add-Log ("═" * 46) Dim
+    Add-Log "RESTORE — $($sel.Count) tweak(s)" Yellow
+    Add-Log ("─" * 46) Dim
+
+    $i = 0
+    foreach ($name in $sel) {
+        Invoke-Restore $name
+        $i++; $v = [math]::Min(100, $step * $i); $pb.Value = $v; $lblPct.Text = "$v%"
+        $form.Refresh(); Start-Sleep -Milliseconds 100
+    }
+
+    $pb.Value = 100; $lblPct.Text = "100%"
+    Add-Log ("─" * 46) Dim
+    Add-Log "COMPLETE — Defaults restored." Yellow
+    $lblStatusDot.ForeColor = $C.Green; $lblStatusDot.Text = "●  SYSTEM READY"
+    $btnApply.Enabled = $true; $btnRestore.Enabled = $true
+
+    [Windows.Forms.MessageBox]::Show("Defaults restored successfully!",
+        "ZERO LATENCY v4.4", [Windows.Forms.MessageBoxButtons]::OK,
+        [Windows.Forms.MessageBoxIcon]::Information)
+})
+
+$form.Controls.AddRange(@($btnApply, $btnRestore))
+
+# ── LIVE STATS TIMER ──────────────────────────────────────────────────────
+$timer = New-Object Windows.Forms.Timer
+$timer.Interval = 2500
+$timer.Add_Tick({
+    try {
+        $cpuPct = [int](Get-CimInstance Win32_Processor -EA Stop |
+            Measure-Object -Property LoadPercentage -Average).Average
+        $filled  = [math]::Floor($cpuPct / 10)
+        $bar     = ("█" * $filled) + ("░" * (10 - $filled))
+        $lblCPUStat.Text = "CPU  $bar  $cpuPct%"
+        $lblCPUStat.ForeColor = if ($cpuPct -gt 80) { $C.Red } elseif ($cpuPct -gt 50) { $C.Yellow } else { $C.Green }
+
+        $os      = Get-CimInstance Win32_OperatingSystem -EA Stop
+        $used    = [math]::Round(($os.TotalVisibleMemorySize - $os.FreePhysicalMemory) / 1MB, 1)
+        $total   = [math]::Round($os.TotalVisibleMemorySize / 1MB, 1)
+        $ramPct  = [int](($used / $total) * 100)
+        $lblRAMStat.Text = "RAM  $used / $total GB"
+        $lblRAMStat.ForeColor = if ($ramPct -gt 85) { $C.Red } elseif ($ramPct -gt 65) { $C.Yellow } else { $C.Green }
+
+        $lblTicker.Text = "$(Get-Date -f 'yyyy-MM-dd  HH:mm:ss')   │   HOST: $env:COMPUTERNAME   │   USER: $env:USERNAME   │   CPU: $cpuPct%   │   RAM: ${used}/${total} GB   │   OS: $siOS"
+    } catch { }
+})
+$timer.Start()
+
+# ── STARTUP ───────────────────────────────────────────────────────────────
+$form.Add_Shown({
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator)
+
+    Add-Log "ZERO LATENCY v4.4 initialized" Cyan
+    Add-Log "Host: $env:COMPUTERNAME   User: $env:USERNAME" Text
+    Add-Log "CPU: $siCPU" Text
+    Add-Log "RAM: $siRAM   GPU: $siGPU" Text
+    if ($isAdmin) {
+        Add-Log "Privilege: Administrator  ✓  All tweaks available" Green
+        $lblStatusDot.ForeColor = $C.Green; $lblStatusDot.Text = "●  SYSTEM READY"
     } else {
-        $StatusLabel.Text = "คีย์ไม่ถูกต้อง หรือ ไม่มีคีย์นี้ในระบบ!"
-        $StatusLabel.ForeColor = [System.Drawing.Color]::Red
+        Add-Log "WARNING: Not running as Administrator — some tweaks may fail" Yellow
+        Add-Log "Tip: Right-click script → Run with PowerShell as Admin" Dim
+        $lblStatusDot.ForeColor = $C.Yellow; $lblStatusDot.Text = "⚠  NO ADMIN"
     }
+    Add-Log "Select tweaks above, then click Apply Optimization." Dim
 })
 
-$ApplyBtn.Add_Click({
-    $ApplyBtn.Enabled = $false
-    $ApplyBtn.Text = "OPTIMIZING IN PROGRESS (PLEASE WAIT)..."
-    $ApplyBtn.BackColor = [System.Drawing.Color]::DarkSlateGray
-    $LogBox.Clear()
-    Write-Log "Initializing Optimization Engine..."
+# ── CLEANUP ───────────────────────────────────────────────────────────────
+$form.Add_FormClosing({ $timer.Stop(); $timer.Dispose() })
 
-    $ScriptBlock = {
-        param($run1, $run2, $run3, $run4, $run5)
-        $LogsList = New-Object System.Collections.ArrayList
-
-        if ($run1) {
-            $LogsList.Add("[*] Optimizing Kernel Time & Platform Clock...") | Out-Null
-            & bcdedit /set disabledynamictick yes | Out-Null
-            & bcdedit /set useplatformclock no | Out-Null
-            & bcdedit /set tscsyncpolicy Enhanced | Out-Null
-            & bcdedit /set synthetictimers yes | Out-Null
-        }
-
-        if ($run2) {
-            $LogsList.Add("[*] Tuning Gaming Priority & Power Throttling...") | Out-Null
-            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0xfa332a /f | Out-Null
-            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\501a4d13-42af-4429-9fd1-a8218c268e20\ee12f2c1-98bb-455b-9e09-ae4c1e16cb45" /v Attributes /t REG_DWORD /d 2 /f | Out-Null
-
-            $SysProfile = "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
-            & reg.exe add $SysProfile /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f | Out-Null
-            & reg.exe add $SysProfile /v SystemResponsiveness /t REG_DWORD /d 0 /f | Out-Null
-
-            $GameTask = "$SysProfile\Tasks\Games"
-            & reg.exe add $GameTask /v Affinity /t REG_DWORD /d 0 /f | Out-Null
-            & reg.exe add $GameTask /v "Background Only" /t REG_SZ /d False /f | Out-Null
-            & reg.exe add $GameTask /v "Clock Rate" /t REG_DWORD /d 0x2710 /f | Out-Null
-            & reg.exe add $GameTask /v "GPU Priority" /t REG_DWORD /d 8 /f | Out-Null
-            & reg.exe add $GameTask /v Priority /t REG_DWORD /d 6 /f | Out-Null
-            & reg.exe add $GameTask /v "Scheduling Category" /t REG_SZ /d High /f | Out-Null
-            & reg.exe add $GameTask /v "SFIO Priority" /t REG_SZ /d High /f | Out-Null
-        }
-
-        if ($run3) {
-            $LogsList.Add("[*] Forcing HAGS & Game Mode Optimization...") | Out-Null
-            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f | Out-Null
-            & reg.exe add "HKCU\Software\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add "HKCU\Software\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f | Out-Null
-            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f | Out-Null
-            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_FSEBehaviorMode /t REG_DWORD /d 2 /f | Out-Null
-            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_HonorUserFSEBehaviorMode /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f | Out-Null
-        }
-
-        if ($run4) {
-            $LogsList.Add("[*] Configuring 1:1 Raw Input & Removing Acceleration...") | Out-Null
-            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\USB" /v DisableSelectiveSuspend /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseHoverTime /t REG_SZ /d 0 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 506 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Accessibility\ToggleKeys" /v Flags /t REG_SZ /d 58 /f | Out-Null
-            & reg.exe add "HKCU\Control Panel\Accessibility\MouseKeys" /v Flags /t REG_SZ /d 0 /f | Out-Null
-        }
-
-        if ($run5) {
-            $LogsList.Add("[*] Recalibrating TCP/IP Network Architecture...") | Out-Null
-            & netsh int tcp set global autotuninglevel=disabled | Out-Null
-            & netsh int tcp set global rss=enabled | Out-Null
-            & netsh int tcp set global chimney=disabled | Out-Null
-            & netsh int tcp set global ecncapability=disabled | Out-Null
-            & netsh int tcp set global timestamps=disabled | Out-Null
-
-            $TcpParams = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-            & reg.exe add $TcpParams /v DefaultTTL /t REG_DWORD /d 0x40 /f | Out-Null
-            & reg.exe add $TcpParams /v EnablePMTUDiscovery /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add $TcpParams /v EnableRSS /t REG_DWORD /d 1 /f | Out-Null
-            & reg.exe add $TcpParams /v EnableTCPChimney /t REG_DWORD /d 0 /f | Out-Null
-            & reg.exe add $TcpParams /v Tcp1323Opts /t REG_DWORD /d 1 /f | Out-Null
-
-            Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" | ForEach-Object {
-                New-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
-                New-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
-            }
-        }
-
-        $LogsList.Add("[SUCCESS] ALL SELECTED CHANGES APPLIED!") | Out-Null
-        return $LogsList.ToArray()
-    }
-
-    $PowerShellJob = [powershell]::Create().AddScript($ScriptBlock).AddArgument($cb1.Checked).AddArgument($cb2.Checked).AddArgument($cb3.Checked).AddArgument($cb4.Checked).AddArgument($cb5.Checked)
-    $AsyncResult = $PowerShellJob.BeginInvoke()
-
-    $JobTimer = New-Object System.Windows.Forms.Timer
-    $JobTimer.Interval = 300
-
-    # ==========================================
-    # [BUG FIX #1] เพิ่ม .GetNewClosure() เพื่อ capture ตัวแปร
-    # $AsyncResult และ $PowerShellJob ที่อยู่ใน scope ของ Click handler
-    # พอ handler คืนค่าไปแล้ว timer tick จะหาตัวแปรไม่เจอถ้าไม่ทำ closure
-    # ==========================================
-    $tickBlock = {
-        param($sender, $e)
-        if ($AsyncResult.IsCompleted) {
-            $sender.Stop()
-            $Outputs = $PowerShellJob.EndInvoke($AsyncResult)
-            foreach ($line in $Outputs) { Write-Log $line }
-            $PowerShellJob.Dispose()
-
-            $ApplyBtn.Enabled = $true
-            $ApplyBtn.Text = "ENGAGE OPTIMIZATION"
-            $ApplyBtn.BackColor = [System.Drawing.Color]::Cyan
-            [System.Windows.Forms.MessageBox]::Show("ระบบปรับแต่งค่าเรียบร้อยแล้ว!`nกรุณาทำการ Restart PC เพื่อให้ผลลัพธ์ทำงาน 100%", "Success", "OK", "Information")
-        }
-    }.GetNewClosure()
-
-    $JobTimer.Add_Tick($tickBlock)
-    $JobTimer.Start()
-})
-
-# แสดงผลฟอร์ม
-[System.Windows.Forms.Application]::Run($Form)
+[Windows.Forms.Application]::Run($form)
