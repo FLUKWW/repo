@@ -1,6 +1,6 @@
 <#
 ================================================================
-ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.1 (GUI & HWID LOCK)
+ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.2 (GUI & HWID LOCK)
 ================================================================
 #>
 
@@ -34,7 +34,7 @@ Add-Type -AssemblyName System.Drawing
 
 # สร้างหน้าต่างหลัก
 $Form = New-Object System.Windows.Forms.Form
-$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.1"
+$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.2"
 $Form.Size = New-Object System.Drawing.Size(550, 600)
 $Form.StartPosition = "CenterScreen"
 $Form.FormBorderStyle = "FixedSingle"
@@ -56,12 +56,12 @@ $LoginPanel.BackColor = [System.Drawing.Color]::FromArgb(25, 25, 30)
 $Form.Controls.Add($LoginPanel)
 
 $TitleLabel = New-Object System.Windows.Forms.Label
-$TitleLabel.Text = "ULTIMATE ZERO LATENCY v4"
+$TitleLabel.Text = "ULTIMATE ZERO LATENCY v4.2"
 $TitleLabel.Size = New-Object System.Drawing.Size(500, 40)
 $TitleLabel.Location = New-Object System.Drawing.Point(25, 30)
 $TitleLabel.Font = New-Object System.Drawing.Font("Consolas", 18, [System.Drawing.FontStyle]::Bold)
 $TitleLabel.ForeColor = [System.Drawing.Color]::Cyan
-$TitleLabel.TextAlign = "Center"
+$TitleLabel.TextAlign = "MiddleCenter" # แก้ไขบัตตรงนี้
 $LoginPanel.Controls.Add($TitleLabel)
 
 $KeyLabel = New-Object System.Windows.Forms.Label
@@ -70,14 +70,14 @@ $KeyLabel.Size = New-Object System.Drawing.Size(450, 25)
 $KeyLabel.Location = New-Object System.Drawing.Point(50, 180)
 $KeyLabel.Font = New-Object System.Drawing.Font("Segoe UI", 11)
 $KeyLabel.ForeColor = [System.Drawing.Color]::White
-$KeyLabel.TextAlign = "Center"
+$KeyLabel.TextAlign = "MiddleCenter" # แก้ไขบัตตรงนี้
 $LoginPanel.Controls.Add($KeyLabel)
 
 $KeyInput = New-Object System.Windows.Forms.TextBox
 $KeyInput.Size = New-Object System.Drawing.Size(350, 30)
 $KeyInput.Location = New-Object System.Drawing.Point(100, 220)
 $KeyInput.Font = New-Object System.Drawing.Font("Consolas", 12)
-$KeyInput.TextAlign = "Center"
+$KeyInput.TextAlign = "Center" # TextBox ใช้ Center ได้ปกติ
 $LoginPanel.Controls.Add($KeyInput)
 
 $ActivateBtn = New-Object System.Windows.Forms.Button
@@ -93,7 +93,7 @@ $StatusLabel.Size = New-Object System.Drawing.Size(450, 25)
 $StatusLabel.Location = New-Object System.Drawing.Point(50, 350)
 $StatusLabel.Font = New-Object System.Drawing.Font("Segoe UI", 10)
 $StatusLabel.ForeColor = [System.Drawing.Color]::DarkGray
-$StatusLabel.TextAlign = "Center"
+$StatusLabel.TextAlign = "MiddleCenter" # แก้ไขบัตตรงนี้
 $LoginPanel.Controls.Add($StatusLabel)
 
 
@@ -111,7 +111,7 @@ $MainTitle.Size = New-Object System.Drawing.Size(500, 35)
 $MainTitle.Location = New-Object System.Drawing.Point(25, 20)
 $MainTitle.Font = New-Object System.Drawing.Font("Segoe UI", 16, [System.Drawing.FontStyle]::Bold)
 $MainTitle.ForeColor = [System.Drawing.Color]::LimeGreen
-$MainTitle.TextAlign = "Center"
+$MainTitle.TextAlign = "MiddleCenter" # แก้ไขบัตตรงนี้
 $MainPanel.Controls.Add($MainTitle)
 
 $ChkBxStyle = {
