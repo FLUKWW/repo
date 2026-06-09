@@ -43,6 +43,8 @@ $tweaks = @(
     @{ Name="Clear Prefetch Data";                  Cat="Cleanup"; Def=$false }
     @{ Name="Disable Hibernate (SSD Recommended)"; Cat="Power  "; Def=$false }
     @{ Name="Disable SysMain / Superfetch";         Cat="Service"; Def=$false }
+    @{ Name="RUN ALL TWEAKS";                     Cat="Action "; Def=$false }
+    @{ Name="Clear ALL Temp";                     Cat="Action "; Def=$false }
 )
 
 # ══════════════════════════ APPLY FUNCTIONS ════════════════════════════
@@ -133,7 +135,34 @@ function Invoke-Tweak($name) {
                 Stop-Service SysMain -Force -EA SilentlyContinue
                 Add-Log "SysMain service disabled (⚠ not recommended on HDD)" Yellow
             } catch { Add-Log "SysMain: $($_.Exception.Message)" Red }
+        
+        "RUN ALL TWEAKS" {
+            foreach($t in $tweaks){
+                if($t.Name -notin @("RUN ALL TWEAKS","Clear ALL Temp")){
+                    try { Invoke-Tweak $t.Name } catch {}
+                }
+            }
+            Add-Log "All tweaks executed." Green
         }
+        "Clear ALL Temp" {
+            try {
+                $n = 0
+                @($env:TEMP,$env:TMP,"C:\Windows\Temp") | ForEach-Object {
+                    if(Test-Path $_){
+                        Get-ChildItem $_ -Recurse -Force -EA SilentlyContinue | ForEach-Object {
+                            try {
+                                Remove-Item $_.FullName -Force -Recurse -EA Stop
+                                $n++
+                            } catch {}
+                        }
+                    }
+                }
+                Add-Log "ALL TEMP CLEANED ($n items removed)" Green
+            } catch {
+                Add-Log "Temp: $($_.Exception.Message)" Red
+            }
+        }
+}
     }
 }
 
