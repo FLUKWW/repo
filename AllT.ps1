@@ -1,6 +1,6 @@
 <#
 ================================================================
-ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4 (GUI & KEY LOCK)
+ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.1 (GUI & HWID LOCK)
 ================================================================
 #>
 
@@ -11,7 +11,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Exit
 }
 
-# 2. รายการคีย์ทั้งหมด 20 คีย์ (Hardcoded ในระบบ)
+# 2. รายการคีย์ทั้งหมด 20 คีย์
 $ValidKeys = @(
     "UZL-4V9X-2K7B-M1N0", "UZL-8W2Z-5Q4P-R7T9", "UZL-1M6K-9J3D-L5F2", "UZL-7V4C-2X8B-N1M0",
     "UZL-3K9P-6Q2W-R5T7", "UZL-5F1D-8J3K-M6L2", "UZL-9N0B-4V7C-2X1M", "UZL-2W7P-5Q3K-R9T8",
@@ -20,12 +20,11 @@ $ValidKeys = @(
     "UZL-6Q7W-2P3K-R5T9", "UZL-1F9D-5J4K-M2L8", "UZL-7V3C-8X2B-N0M1", "UZL-2W9P-6Q4K-R7T3"
 )
 
-# 3. ฟังก์ชันดึงค่า Hardware ID (UUID ของเมนบอร์ด) สำหรับล็อกเครื่อง
+# 3. ฟังก์ชันดึงค่า Hardware ID สำหรับล็อกเครื่อง
 function Get-DeviceHWID {
     return (Get-CimInstance Win32_ComputerSystemProduct).UUID
 }
 
-# 4. โครงสร้างสำหรับการเก็บข้อมูลใน Registry
 $RegPath = "HKLM:\SOFTWARE\UltimateZeroLatency"
 $CurrentHWID = Get-DeviceHWID
 
@@ -35,14 +34,13 @@ Add-Type -AssemblyName System.Drawing
 
 # สร้างหน้าต่างหลัก
 $Form = New-Object System.Windows.Forms.Form
-$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4"
+$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.1"
 $Form.Size = New-Object System.Drawing.Size(550, 600)
 $Form.StartPosition = "CenterScreen"
 $Form.FormBorderStyle = "FixedSingle"
 $Form.MaximizeBox = $false
 $Form.BackColor = [System.Drawing.Color]::FromArgb(20, 20, 20)
 
-# ฟังก์ชันสร้างสไตล์ปุ่ม
 function Set-ControlStyle ($Control, $ForeColor, $BackColor) {
     $Control.ForeColor = $ForeColor
     $Control.BackColor = $BackColor
@@ -50,7 +48,7 @@ function Set-ControlStyle ($Control, $ForeColor, $BackColor) {
 }
 
 # ==========================================
-# หน้าต่างต้อนรับ / เปิดใช้งานคีย์ (LOGIN PANEL)
+# LOGIN PANEL
 # ==========================================
 $LoginPanel = New-Object System.Windows.Forms.Panel
 $LoginPanel.Size = $Form.ClientSize
@@ -100,14 +98,13 @@ $LoginPanel.Controls.Add($StatusLabel)
 
 
 # ==========================================
-# หน้าต่างปรับแต่งหลัก (MAIN TWEAK PANEL)
+# MAIN TWEAK PANEL
 # ==========================================
 $MainPanel = New-Object System.Windows.Forms.Panel
 $MainPanel.Size = $Form.ClientSize
 $MainPanel.Visible = $false
 $Form.Controls.Add($MainPanel)
 
-# Header
 $MainTitle = New-Object System.Windows.Forms.Label
 $MainTitle.Text = "TWEAK ENGINE SELECTION"
 $MainTitle.Size = New-Object System.Drawing.Size(500, 35)
@@ -117,7 +114,6 @@ $MainTitle.ForeColor = [System.Drawing.Color]::LimeGreen
 $MainTitle.TextAlign = "Center"
 $MainPanel.Controls.Add($MainTitle)
 
-# Checkboxes สำหรับเลือกสเต็ปการรัน (ป้องกันไม่ให้บัค ติ๊กเลือกได้อิสระ)
 $ChkBxStyle = {
     param($cb, $text, $y)
     $cb.Text = $text
@@ -136,7 +132,6 @@ $cb5 = New-Object System.Windows.Forms.CheckBox; &$ChkBxStyle $cb5 "Step 5: Reca
 
 $MainPanel.Controls.AddRange(@($cb1, $cb2, $cb3, $cb4, $cb5))
 
-# Log Output Box (กล่องแสดงผลการทำงานสดๆ)
 $LogBox = New-Object System.Windows.Forms.TextBox
 $LogBox.Multiline = $true
 $LogBox.ReadOnly = $true
@@ -148,7 +143,6 @@ $LogBox.ForeColor = [System.Drawing.Color]::Cyan
 $LogBox.Font = New-Object System.Drawing.Font("Consolas", 9)
 $MainPanel.Controls.Add($LogBox)
 
-# ปุ่มรันสคริปต์
 $ApplyBtn = New-Object System.Windows.Forms.Button
 $ApplyBtn.Text = "ENGAGE OPTIMIZATION"
 $ApplyBtn.Size = New-Object System.Drawing.Size(460, 45)
@@ -156,7 +150,6 @@ $ApplyBtn.Location = New-Object System.Drawing.Point(45, 480)
 Set-ControlStyle $ApplyBtn ([System.Drawing.Color]::Black) ([System.Drawing.Color]::Cyan)
 $MainPanel.Controls.Add($ApplyBtn)
 
-# ฟังก์ชันแสดง Log ในกล่องข้อความ
 function Write-Log ($Message) {
     $Form.Invoke([Action[string]]{ 
         param($msg) 
@@ -165,41 +158,29 @@ function Write-Log ($Message) {
 }
 
 # ==========================================
-# ระบบเหตุการณ์ (EVENTS) & ตรรกะเบื้องหลัง
+# EVENTS & LOGIC
 # ==========================================
-
-# ฟังก์ชันเปลี่ยนหน้าเมื่อคีย์ผ่าน
 function Show-MainDashboard {
     $LoginPanel.Visible = $false
     $MainPanel.Visible = $true
     Write-Log "System Authorized. Ready to optimize."
 }
 
-# ตรวจสอบว่าเครื่องนี้เคยลงทะเบียนไว้หรือยังเมื่อเปิดโปรแกรม
 if (Test-Path $RegPath) {
     $SavedKey = (Get-ItemProperty -Path $RegPath -Name "LicenseKey" -ErrorAction SilentlyContinue).LicenseKey
     $SavedHWID = (Get-ItemProperty -Path $RegPath -Name "HWID" -ErrorAction SilentlyContinue).HWID
-    
-    if ($SavedHWID -eq $CurrentHWID -and $ValidKeys -contains $SavedKey) {
-        # เครื่องเดิม คีย์เดิมที่เคยกรอกไว้ -> ผ่านอัตโนมัติ
-        Show-MainDashboard
-    }
+    if ($SavedHWID -eq $CurrentHWID -and $ValidKeys -contains $SavedKey) { Show-MainDashboard }
 }
 
-# เมื่อกดปุ่มเปิดใช้งานคีย์ (Activate)
 $ActivateBtn.Add_Click({
     $EnteredKey = $KeyInput.Text.Trim().ToUpper()
-    
     if (-not $EnteredKey) {
         $StatusLabel.Text = "กรุณากรอกคีย์ก่อนครับ!"
         $StatusLabel.ForeColor = [System.Drawing.Color]::Red
         return
     }
 
-    # ตรวจสอบว่าคีย์ที่กรอกถูกต้องตามรายการไหม
     if ($ValidKeys -contains $EnteredKey) {
-        
-        # ตรวจสอบในระบบส่วนกลาง (Registry เครื่องอื่นห้ามซ้ำ)
         if (Test-Path $RegPath) {
             $CheckKey = (Get-ItemProperty -Path $RegPath -Name "LicenseKey" -ErrorAction SilentlyContinue).LicenseKey
             $CheckHWID = (Get-ItemProperty -Path $RegPath -Name "HWID" -ErrorAction SilentlyContinue).HWID
@@ -210,8 +191,6 @@ $ActivateBtn.Add_Click({
                 return
             }
         }
-
-        # ผ่านเงื่อนไข: ทำการบันทึกผูกคีย์เข้ากับ HWID ของเครื่องนี้ถาวร
         if (-not (Test-Path $RegPath)) { New-Item -Path $RegPath -Force | Out-Null }
         Set-ItemProperty -Path $RegPath -Name "LicenseKey" -Value $EnteredKey -Force
         Set-ItemProperty -Path $RegPath -Name "HWID" -Value $CurrentHWID -Force
@@ -219,13 +198,9 @@ $ActivateBtn.Add_Click({
         $StatusLabel.Text = "เปิดใช้งานสำเร็จ กำลังเข้าสู่ระบบ..."
         $StatusLabel.ForeColor = [System.Drawing.Color]::LimeGreen
         
-        # หน่วงเวลานิดนึงให้ดูเท่ ก่อนสลับหน้า
         $Timer = New-Object System.Windows.Forms.Timer
         $Timer.Interval = 1200
-        $Timer.Add_Tick({
-            $Timer.Stop()
-            Show-MainDashboard
-        })
+        $Timer.Add_Tick({ $Timer.Stop(); Show-MainDashboard })
         $Timer.Start()
     } else {
         $StatusLabel.Text = "คีย์ไม่ถูกต้อง หรือ ไม่มีคีย์นี้ในระบบ!"
@@ -233,12 +208,115 @@ $ActivateBtn.Add_Click({
     }
 })
 
-# เมื่อกดปุ่มเริ่มจูนระบบ (Engage Optimization)
 $ApplyBtn.Add_Click({
     $ApplyBtn.Enabled = $false
-    $ApplyBtn.Text = "OPTIMIZING IN PROGRESS..."
+    $ApplyBtn.Text = "OPTIMIZING IN PROGRESS (PLEASE WAIT)..."
     $ApplyBtn.BackColor = [System.Drawing.Color]::DarkSlateGray
     $LogBox.Clear()
+    Write-Log "Initializing Optimization Engine..."
 
-    # สร้าง Background Job เพื่อป้องกัน UI ค้าง (No-Bug UI Threading)
-    $Script
+    # สร้าง Background Job รันลอจิกแยก เพื่อกันหน้าต่าง UI ค้าง 100%
+    $ScriptBlock = {
+        param($run1, $run2, $run3, $run4, $run5)
+        $LogsList = New-Object System.Collections.ArrayList
+
+        if ($run1) {
+            $LogsList.Add("[*] Optimizing Kernel Time & Platform Clock...") | Out-Null
+            & bcdedit /set disabledynamictick yes | Out-Null
+            & bcdedit /set useplatformclock no | Out-Null
+            & bcdedit /set tscsyncpolicy Enhanced | Out-Null
+            & bcdedit /set synthetictimers yes | Out-Null
+        }
+
+        if ($run2) {
+            $LogsList.Add("[*] Tuning Gaming Priority & Power Throttling...") | Out-Null
+            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0xfa332a /f | Out-Null
+            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\501a4d13-42af-4429-9fd1-a8218c268e20\ee12f2c1-98bb-455b-9e09-ae4c1e16cb45" /v Attributes /t REG_DWORD /d 2 /f | Out-Null
+
+            $SysProfile = "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+            & reg.exe add $SysProfile /v NetworkThrottlingIndex /t REG_DWORD /d 0xffffffff /f | Out-Null
+            & reg.exe add $SysProfile /v SystemResponsiveness /t REG_DWORD /d 0 /f | Out-Null
+
+            $GameTask = "$SysProfile\Tasks\Games"
+            & reg.exe add $GameTask /v Affinity /t REG_DWORD /d 0 /f | Out-Null
+            & reg.exe add $GameTask /v "Background Only" /t REG_SZ /d False /f | Out-Null
+            & reg.exe add $GameTask /v "Clock Rate" /t REG_DWORD /d 0x2710 /f | Out-Null
+            & reg.exe add $GameTask /v "GPU Priority" /t REG_DWORD /d 8 /f | Out-Null
+            & reg.exe add $GameTask /v Priority /t REG_DWORD /d 6 /f | Out-Null
+            & reg.exe add $GameTask /v "Scheduling Category" /t REG_SZ /d High /f | Out-Null
+            & reg.exe add $GameTask /v "SFIO Priority" /t REG_SZ /d High /f | Out-Null
+        }
+
+        if ($run3) {
+            $LogsList.Add("[*] Forcing HAGS & Game Mode Optimization...") | Out-Null
+            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers" /v HwSchMode /t REG_DWORD /d 2 /f | Out-Null
+            & reg.exe add "HKCU\Software\Microsoft\GameBar" /v AllowAutoGameMode /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add "HKCU\Software\Microsoft\GameBar" /v AutoGameModeEnabled /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR" /v AllowGameDVR /t REG_DWORD /d 0 /f | Out-Null
+            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_Enabled /t REG_DWORD /d 0 /f | Out-Null
+            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_FSEBehaviorMode /t REG_DWORD /d 2 /f | Out-Null
+            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_HonorUserFSEBehaviorMode /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add "HKCU\System\GameConfigStore" /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f | Out-Null
+        }
+
+        if ($run4) {
+            $LogsList.Add("[*] Configuring 1:1 Raw Input & Removing Acceleration...") | Out-Null
+            & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\USB" /v DisableSelectiveSuspend /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseHoverTime /t REG_SZ /d 0 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseSpeed /t REG_SZ /d 0 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseThreshold1 /t REG_SZ /d 0 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Mouse" /v MouseThreshold2 /t REG_SZ /d 0 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Accessibility\StickyKeys" /v Flags /t REG_SZ /d 506 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Accessibility\ToggleKeys" /v Flags /t REG_SZ /d 58 /f | Out-Null
+            & reg.exe add "HKCU\Control Panel\Accessibility\MouseKeys" /v Flags /t REG_SZ /d 0 /f | Out-Null
+        }
+
+        if ($run5) {
+            $LogsList.Add("[*] Recalibrating TCP/IP Network Architecture...") | Out-Null
+            & netsh int tcp set global autotuninglevel=disabled | Out-Null
+            & netsh int tcp set global rss=enabled | Out-Null
+            & netsh int tcp set global chimney=disabled | Out-Null
+            & netsh int tcp set global ecncapability=disabled | Out-Null
+            & netsh int tcp set global timestamps=disabled | Out-Null
+
+            $TcpParams = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+            & reg.exe add $TcpParams /v DefaultTTL /t REG_DWORD /d 0x40 /f | Out-Null
+            & reg.exe add $TcpParams /v EnablePMTUDiscovery /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add $TcpParams /v EnableRSS /t REG_DWORD /d 1 /f | Out-Null
+            & reg.exe add $TcpParams /v EnableTCPChimney /t REG_DWORD /d 0 /f | Out-Null
+            & reg.exe add $TcpParams /v Tcp1323Opts /t REG_DWORD /d 1 /f | Out-Null
+
+            Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" | ForEach-Object {
+                New-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
+                New-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
+            }
+        }
+
+        $LogsList.Add("[SUCCESS] ALL SELECTED CHANGES APPLIED!") | Out-Null
+        return $LogsList.ToArray()
+    }
+
+    $PowerShellJob = [powershell]::Create().AddScript($ScriptBlock).AddArgument($cb1.Checked).AddArgument($cb2.Checked).AddArgument($cb3.Checked).AddArgument($cb4.Checked).AddArgument($cb5.Checked)
+    $AsyncResult = $PowerShellJob.BeginInvoke()
+
+    $JobTimer = New-Object System.Windows.Forms.Timer
+    $JobTimer.Interval = 300
+    $JobTimer.Add_Tick({
+        if ($AsyncResult.IsCompleted) {
+            $JobTimer.Stop()
+            $Outputs = $PowerShellJob.EndInvoke($AsyncResult)
+            foreach ($line in $Outputs) { Write-Log $line }
+            $PowerShellJob.Dispose()
+            
+            $ApplyBtn.Enabled = $true
+            $ApplyBtn.Text = "ENGAGE OPTIMIZATION"
+            $ApplyBtn.BackColor = [System.Drawing.Color]::Cyan
+            [System.Windows.Forms.MessageBox]::Show("ระบบปรับแต่งค่าเรียบร้อยแล้ว!`nกรุณาทำการ Restart PC เพื่อให้ผลลัพธ์ทำงาน 100%", "Success", "OK", "Information")
+        }
+    })
+    $JobTimer.Start()
+})
+
+# แสดงผลฟอร์ม
+[System.Windows.Forms.Application]::Run($Form)
