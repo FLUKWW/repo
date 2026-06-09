@@ -28,7 +28,7 @@ Write-Host "[*] Step 1: Optimizing Kernel Time..." -ForegroundColor White
 # STEP 2: GAMING PRIORITY & POWER THROTTLING
 # ====================================
 Write-Host "[*] Step 2: Tuning Gaming Priority..." -ForegroundColor White
-& reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0x26 /f | Out-Null
+& reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0xfa332a /f | Out-Null
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f | Out-Null
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\501a4d13-42af-4429-9fd1-a8218c268e20\ee12f2c1-98bb-455b-9e09-ae4c1e16cb45" /v Attributes /t REG_DWORD /d 2 /f | Out-Null
 
