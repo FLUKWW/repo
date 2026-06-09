@@ -1,6 +1,6 @@
 <#
 ================================================================
-ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.2 (GUI & HWID LOCK)
+ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4.3 (BUG FIX)
 ================================================================
 #>
 
@@ -34,7 +34,7 @@ Add-Type -AssemblyName System.Drawing
 
 # สร้างหน้าต่างหลัก
 $Form = New-Object System.Windows.Forms.Form
-$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.2"
+$Form.Text = "ULTIMATE ZERO LATENCY - EXTREME ENGINE v4.3"
 $Form.Size = New-Object System.Drawing.Size(550, 600)
 $Form.StartPosition = "CenterScreen"
 $Form.FormBorderStyle = "FixedSingle"
@@ -56,7 +56,7 @@ $LoginPanel.BackColor = [System.Drawing.Color]::FromArgb(25, 25, 30)
 $Form.Controls.Add($LoginPanel)
 
 $TitleLabel = New-Object System.Windows.Forms.Label
-$TitleLabel.Text = "ULTIMATE ZERO LATENCY v4.2"
+$TitleLabel.Text = "ULTIMATE ZERO LATENCY v4.3"
 $TitleLabel.Size = New-Object System.Drawing.Size(500, 40)
 $TitleLabel.Location = New-Object System.Drawing.Point(25, 30)
 $TitleLabel.Font = New-Object System.Drawing.Font("Consolas", 18, [System.Drawing.FontStyle]::Bold)
@@ -200,7 +200,12 @@ $ActivateBtn.Add_Click({
         
         $Timer = New-Object System.Windows.Forms.Timer
         $Timer.Interval = 1200
-        $Timer.Add_Tick({ $Timer.Stop(); Show-MainDashboard })
+        # แก้ไขจุดที่ทำให้เกิด Loop ตรงนี้ครับ
+        $Timer.Add_Tick({ 
+            param($sender, $e)
+            $sender.Stop()
+            Show-MainDashboard 
+        })
         $Timer.Start()
     } else {
         $StatusLabel.Text = "คีย์ไม่ถูกต้อง หรือ ไม่มีคีย์นี้ในระบบ!"
@@ -301,9 +306,11 @@ $ApplyBtn.Add_Click({
 
     $JobTimer = New-Object System.Windows.Forms.Timer
     $JobTimer.Interval = 300
+    # แก้ไขจุดที่ทำให้เกิด Loop ป้องกันไว้ให้ด้วยครับ
     $JobTimer.Add_Tick({
+        param($sender, $e)
         if ($AsyncResult.IsCompleted) {
-            $JobTimer.Stop()
+            $sender.Stop()
             $Outputs = $PowerShellJob.EndInvoke($AsyncResult)
             foreach ($line in $Outputs) { Write-Log $line }
             $PowerShellJob.Dispose()
