@@ -118,4 +118,4 @@ Write-Host " [SUCCESS] EXTREME PROFILE APPLIED SUCCESSFULLY" -ForegroundColor Ye
 Write-Host " Please RESTART your PC to apply all changes." -ForegroundColor Cyan
 Write-Host "=======================================================`n" -ForegroundColor Green
 
-Start-Sleep -Seconds 5
+Start-Sleep -Seconds 15
