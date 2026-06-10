@@ -1,5 +1,5 @@
 # ================================================================
-# ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4
+# ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v4 (with UDP Opt)
 # ================================================================
 
 # 1. ตรวจสอบสิทธิ์ Administrator
@@ -93,7 +93,29 @@ Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfac
     New-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
+# ====================================
+# STEP 6: ADVANCED UDP & AFD OPTIMIZATION (GAMING DATAGRAMS)
+# ====================================
+Write-Host "[*] Step 6: Optimizing UDP Datagrams & AFD..." -ForegroundColor White
+
+$AfdParams = "HKLM\SYSTEM\CurrentControlSet\Services\AFD\Parameters"
+& reg.exe add $AfdParams /v FastSendDatagramThreshold /t REG_DWORD /d 65536 /f | Out-Null
+& reg.exe add $AfdParams /v DefaultReceiveWindow /t REG_DWORD /d 16384 /f | Out-Null
+& reg.exe add $AfdParams /v DefaultSendWindow /t REG_DWORD /d 16384 /f | Out-Null
+& reg.exe add $AfdParams /v FastCopyReceiveThreshold /t REG_DWORD /d 1536 /f | Out-Null
+
+$QoS = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"
+& reg.exe add $QoS /v "Do not use NLA" /t REG_SZ /d "1" /f | Out-Null
+
+& netsh int tcp set global rss=enabled | Out-Null
+& netsh int tcp set supplemental template=custom icw=10 | Out-Null
+
+# ====================================
+# FINISH & RESTART MESSAGE
+# ====================================
 Write-Host "`n=======================================================" -ForegroundColor Green
 Write-Host " [SUCCESS] EXTREME PROFILE APPLIED SUCCESSFULLY" -ForegroundColor Yellow
 Write-Host " Please RESTART your PC to apply all changes." -ForegroundColor Cyan
 Write-Host "=======================================================`n" -ForegroundColor Green
+
+Start-Sleep -Seconds 5
