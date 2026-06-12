@@ -171,8 +171,8 @@ $MemMgmt = "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Managem
 & reg.exe add $MemMgmt /v DisablePagingExecutive /t REG_DWORD /d 1 /f | Out-Null
 & reg.exe add $MemMgmt /v LargeSystemCache       /t REG_DWORD /d 0 /f | Out-Null
 
-$ramKB        = [long]((Get-CimInstance Win32_ComputerSystem -Property TotalPhysicalMemory).TotalPhysicalMemory / 1KB)
-$ramKBClamped = [uint32]([Math]::Max(0, [Math]::Min([uint64]$ramKB, 4294967295)))
+$ramKB        = [uint64]((Get-CimInstance Win32_ComputerSystem -Property TotalPhysicalMemory).TotalPhysicalMemory / 1KB)
+$ramKBClamped = [uint32]([Math]::Min($ramKB, [uint64][uint32]::MaxValue))
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control" `
     /v SvcHostSplitThresholdInKB /t REG_DWORD /d $ramKBClamped /f | Out-Null
 
