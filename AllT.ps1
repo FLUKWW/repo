@@ -172,7 +172,7 @@ $MemMgmt = "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Managem
 & reg.exe add $MemMgmt /v LargeSystemCache       /t REG_DWORD /d 0 /f | Out-Null
 
 $ramKB        = [long]((Get-CimInstance Win32_ComputerSystem -Property TotalPhysicalMemory).TotalPhysicalMemory / 1KB)
-$ramKBClamped = [Math]::Min($ramKB, 0xFFFFFFFF)
+$ramKBClamped = [uint32]([Math]::Max(0, [Math]::Min([uint64]$ramKB, 0xFFFFFFFF)))
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control" `
     /v SvcHostSplitThresholdInKB /t REG_DWORD /d $ramKBClamped /f | Out-Null
 
