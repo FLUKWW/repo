@@ -1,8 +1,8 @@
 # ================================================================
-# ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v5
-# Full Merged Build — All Recommendations Applied
+# ULTIMATE ZERO LATENCY - PURE POWERSHELL EDITION v5.1
+# Full Merged Build — All Recommendations Applied + Junk Cleanup
 # ----------------------------------------------------------------
-# Changes from v4:
+# Changes from v4/v5:
 #   [FIX] Win32PrioritySeparation : 0xfa332a  → 0x2a
 #   [FIX] autotuninglevel         : disabled  → normal
 #   [FIX] ecncapability           : disabled  → enabled
@@ -16,7 +16,7 @@
 #   [ADD] initialrto = 750ms (FPS optimal)
 #   [ADD] STEP 7: Memory Optimization
 #   [ADD] STEP 8: Per-Process Priority via IFEO
-#   [ADD] STEP 9: CPU Core Parking disable
+#   [ADD] STEP 9: System Cleanup (Junk Files & Recycle Bin)
 # ================================================================
 
 # ---- Admin Check -----------------------------------------------
@@ -28,7 +28,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 Clear-Host
 Write-Host "=======================================================" -ForegroundColor Cyan
-Write-Host "    ULTIMATE ZERO LATENCY - EXTREME ENGINE v5          " -ForegroundColor Green
+Write-Host "    ULTIMATE ZERO LATENCY - EXTREME ENGINE v5.1        " -ForegroundColor Green
 Write-Host "=======================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -40,14 +40,12 @@ Write-Host "[*] Step 1: Optimizing Kernel Timers..." -ForegroundColor White
 & bcdedit /set disabledynamictick yes | Out-Null   # ปิด dynamic timer tick
 & bcdedit /set useplatformclock no    | Out-Null   # ใช้ TSC แทน HPET/ACPI
 & bcdedit /set tscsyncpolicy Enhanced | Out-Null   # Sync TSC ทุก core
-# [REMOVED] synthetictimers yes — ไม่มีผลบน bare-metal; สำหรับ Hyper-V VM เท่านั้น
 
 # ====================================
 # STEP 2: GAMING PRIORITY & POWER THROTTLING
 # ====================================
 Write-Host "[*] Step 2: Tuning Gaming Priority..." -ForegroundColor White
 
-# [FIXED] 0xfa332a -> 0x2a  (fixed/short quantum + max foreground boost)
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\PriorityControl" /v Win32PrioritySeparation /t REG_DWORD /d 0x2a /f | Out-Null
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" /v PowerThrottlingOff /t REG_DWORD /d 1 /f | Out-Null
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerSettings\501a4d13-42af-4429-9fd1-a8218c268e20\ee12f2c1-98bb-455b-9e09-ae4c1e16cb45" /v Attributes /t REG_DWORD /d 2 /f | Out-Null
@@ -70,11 +68,11 @@ $GameTask = "$SysProfile\Tasks\Games"
 # ====================================
 Write-Host "[*] Step 3: Forcing HAGS & Game Mode..." -ForegroundColor White
 
-& reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"    /v HwSchMode                            /t REG_DWORD /d 2 /f | Out-Null
-& reg.exe add "HKCU\Software\Microsoft\GameBar"                          /v AllowAutoGameMode                    /t REG_DWORD /d 1 /f | Out-Null
-& reg.exe add "HKCU\Software\Microsoft\GameBar"                          /v AutoGameModeEnabled                  /t REG_DWORD /d 1 /f | Out-Null
-& reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR"         /v AllowGameDVR                         /t REG_DWORD /d 0 /f | Out-Null
-& reg.exe add "HKCU\System\GameConfigStore"                              /v GameDVR_Enabled                      /t REG_DWORD /d 0 /f | Out-Null
+& reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers"    /v HwSchMode                             /t REG_DWORD /d 2 /f | Out-Null
+& reg.exe add "HKCU\Software\Microsoft\GameBar"                          /v AllowAutoGameMode                     /t REG_DWORD /d 1 /f | Out-Null
+& reg.exe add "HKCU\Software\Microsoft\GameBar"                          /v AutoGameModeEnabled                   /t REG_DWORD /d 1 /f | Out-Null
+& reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\GameDVR"         /v AllowGameDVR                          /t REG_DWORD /d 0 /f | Out-Null
+& reg.exe add "HKCU\System\GameConfigStore"                              /v GameDVR_Enabled                       /t REG_DWORD /d 0 /f | Out-Null
 & reg.exe add "HKCU\System\GameConfigStore"                              /v GameDVR_FSEBehaviorMode               /t REG_DWORD /d 2 /f | Out-Null
 & reg.exe add "HKCU\System\GameConfigStore"                              /v GameDVR_HonorUserFSEBehaviorMode      /t REG_DWORD /d 1 /f | Out-Null
 & reg.exe add "HKCU\System\GameConfigStore"                              /v GameDVR_DXGIHonorFSEWindowsCompatible /t REG_DWORD /d 1 /f | Out-Null
@@ -98,18 +96,13 @@ Write-Host "[*] Step 4: Forcing 1:1 Raw Input..." -ForegroundColor White
 # ====================================
 Write-Host "[*] Step 5: Recalibrating TCP/IP Architecture..." -ForegroundColor White
 
-# [FIXED]  disabled -> normal   (UDP gameplay ไม่กระทบ; download เร็วขึ้นมาก)
 & netsh int tcp set global autotuninglevel=normal  | Out-Null
 & netsh int tcp set global rss=enabled             | Out-Null
 & netsh int tcp set global chimney=disabled        | Out-Null
-# [ADDED]  RSC — รวม packet ทำให้ latency เพิ่ม
 & netsh int tcp set global rsc=disabled            | Out-Null
-# [ADDED]  TCP Heuristics — ปิดเพื่อให้ behavior สม่ำเสมอ
 & netsh int tcp set heuristics disabled            | Out-Null
-# [FIXED]  disabled -> enabled  (ลด packet loss บน router ที่รองรับ ECN)
 & netsh int tcp set global ecncapability=enabled   | Out-Null
 & netsh int tcp set global timestamps=disabled     | Out-Null
-# [ADDED]  URO — UDP Receive Offload (Win11 only; Win10 จะ skip อัตโนมัติ)
 $null = & netsh int udp set global uro=disabled 2>&1
 
 $TcpParams = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
@@ -119,13 +112,11 @@ $TcpParams = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
 & reg.exe add $TcpParams /v EnableTCPChimney    /t REG_DWORD /d 0    /f | Out-Null
 & reg.exe add $TcpParams /v Tcp1323Opts         /t REG_DWORD /d 1    /f | Out-Null
 
-# Nagle disable — ทุก adapter รวมถึง VPN / virtual NIC
 Get-ChildItem "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces" | ForEach-Object {
     New-ItemProperty -Path $_.PSPath -Name 'TcpAckFrequency' -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
     New-ItemProperty -Path $_.PSPath -Name 'TCPNoDelay'      -Value 1 -PropertyType DWord -Force -ErrorAction SilentlyContinue | Out-Null
 }
 
-# [ADDED] LSO disable — Large Send Offload เพิ่ม NIC-side processing latency
 Get-NetAdapter | ForEach-Object {
     Disable-NetAdapterLso -Name $_.Name -ErrorAction SilentlyContinue
 }
@@ -143,47 +134,36 @@ $AfdParams = "HKLM\SYSTEM\CurrentControlSet\Services\AFD\Parameters"
 
 $QoS = "HKLM\SYSTEM\CurrentControlSet\Services\Tcpip\QoS"
 & reg.exe add $QoS /v "Do not use NLA" /t REG_SZ /d "1" /f | Out-Null
-
-# [ADDED] ปลด QoS bandwidth reserve 20% ที่ Windows สงวนไว้
 & reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Psched" /v NonBestEffortLimit /t REG_DWORD /d 0 /f | Out-Null
 
 & netsh int tcp set global rss=enabled | Out-Null
-# [ADDED] CTCP — ฟื้นตัวจาก packet loss ดีกว่า CUBIC (default)
 & netsh int tcp set supplemental template=custom congestionprovider=ctcp | Out-Null
 & netsh int tcp set supplemental template=custom icw=10                  | Out-Null
-# [ADDED] initialrto=750ms — optimal สำหรับ FPS (RTT <50ms); default คือ 3000ms
 & netsh int tcp set supplemental template=custom initialrto=750          | Out-Null
 
 # ====================================
-# STEP 7: MEMORY OPTIMIZATION  [NEW]
+# STEP 7: MEMORY OPTIMIZATION
 # ====================================
 Write-Host "[*] Step 7: Optimizing Memory Management..." -ForegroundColor White
 
 $MemMgmt = "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management"
-# Lock kernel + driver code in RAM — ป้องกัน page fault ระหว่าง game loop
 & reg.exe add $MemMgmt /v DisablePagingExecutive /t REG_DWORD /d 1 /f | Out-Null
-# Gaming workload (ไม่ใช่ LAN file server)
 & reg.exe add $MemMgmt /v LargeSystemCache       /t REG_DWORD /d 0 /f | Out-Null
 
-# ป้องกัน svchost splitting มากเกินไป — ลด context switch overhead
-# ค่า = RAM จริงของระบบ (KB) Windows จะหยุด split เมื่อ RAM เกิน threshold
 $ramKB = [int]((Get-CimInstance Win32_ComputerSystem -Property TotalPhysicalMemory).TotalPhysicalMemory / 1KB)
 & reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control" /v SvcHostSplitThresholdInKB /t REG_DWORD /d $ramKB /f | Out-Null
 
 # ====================================
-# STEP 8: PER-PROCESS GAME PRIORITY — IFEO  [NEW]
+# STEP 8: PER-PROCESS GAME PRIORITY
 # ====================================
 Write-Host "[*] Step 8: Setting Per-Process Game Priority (IFEO)..." -ForegroundColor White
 
 $IFEO = "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options"
 
-# CpuPriorityClass: 1=Idle 2=BelowNormal 3=Normal 4=AboveNormal 5=High 6=Realtime(อันตราย)
-# IoPriority:       0=VeryLow 1=Low 2=Normal 3=High
-
 $games = @(
     "cs2.exe",
     "VALORANT-Win64-Shipping.exe",
-    "FiveM_GTAProcess.exe",     # FiveM: ถ้า process ชื่อเปลี่ยนตาม build ให้แก้ตรงนี้
+    "FiveM_GTAProcess.exe",
     "GTA5.exe"
 )
 foreach ($g in $games) {
@@ -192,14 +172,36 @@ foreach ($g in $games) {
 }
 
 # ====================================
+# STEP 9: SYSTEM CLEANUP (JUNK FILES)
+# ====================================
+Write-Host "[*] Step 9: Cleaning Junk Files & Temporary Data..." -ForegroundColor White
+
+# กำหนด Path ของไฟล์ขยะ (Temp, Prefetch, SoftwareDistribution)
+$JunkPaths = @(
+    "$env:TEMP\*",
+    "$env:WINDIR\Temp\*",
+    "$env:WINDIR\Prefetch\*",
+    "$env:WINDIR\SoftwareDistribution\Download\*"
+)
+
+# ทำการลบไฟล์และโฟลเดอร์ใน Path ที่กำหนด
+foreach ($Path in $JunkPaths) {
+    Remove-Item -Path $Path -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+# เคลียร์ถังขยะ
+Clear-RecycleBin -Force -ErrorAction SilentlyContinue
+Write-Host " -> Junk files and Recycle Bin have been cleaned!" -ForegroundColor Gray
+
+# ====================================
 # FINISH
 # ====================================
 Write-Host ""
 Write-Host "=======================================================" -ForegroundColor Green
-Write-Host " [SUCCESS] EXTREME PROFILE v5 APPLIED SUCCESSFULLY"    -ForegroundColor Yellow
+Write-Host " [SUCCESS] EXTREME PROFILE v5.1 APPLIED SUCCESSFULLY"   -ForegroundColor Yellow
 Write-Host "                                                       " -ForegroundColor Green
-Write-Host "  Steps completed: 9/9                                " -ForegroundColor Cyan
-Write-Host "  Please RESTART your PC to apply all changes.        " -ForegroundColor Cyan
+Write-Host "  Steps completed: 9/9                                 " -ForegroundColor Cyan
+Write-Host "  Please RESTART your PC to apply all changes.         " -ForegroundColor Cyan
 Write-Host "=======================================================" -ForegroundColor Green
 Write-Host ""
 
