@@ -192,21 +192,6 @@ foreach ($g in $games) {
 }
 
 # ====================================
-# STEP 9: ADVANCED SYSTEM TWEAKS  [NEW]
-# ====================================
-Write-Host "[*] Step 9: Advanced System Tweaks..." -ForegroundColor White
-
-# CPU Core Parking disable — บังคับให้ทุก core ทำงานตลอด
-# ใช้ SCHEME_CURRENT เพื่อรองรับ custom kernel power plan
-& powercfg /setacvalueindex SCHEME_CURRENT 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 100 | Out-Null
-& powercfg /setdcvalueindex SCHEME_CURRENT 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 100 | Out-Null
-# Re-activate current plan เพื่อ apply core parking changes
-$schemeLine = & powercfg /getactivescheme
-if ($schemeLine -match '\{([0-9a-f\-]+)\}') {
-    & powercfg /setactive $Matches[1] | Out-Null
-}
-
-# ====================================
 # FINISH
 # ====================================
 Write-Host ""
